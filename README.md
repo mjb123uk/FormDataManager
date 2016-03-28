@@ -1,6 +1,6 @@
 # FormDataManager
 
-This Modx extra is a Custom Manager Page (CMP) that can be used to define layouts for viewing and exporting data created from forms.
+This Modx extra is a Custom Manager Page (CMP) that can be used to define layouts for viewing and exporting data created from forms. Currently, this works with form data generated via the Formz extra, other forms will be added in the future.
 
 The export file will match the defined layout including any required default values irrespective of the form fields saved.
 
