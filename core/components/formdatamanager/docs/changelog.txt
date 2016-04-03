@@ -1,0 +1,23 @@
+FormDataManager-1.0.2-beta
+==========================
+
+1.0.2
+-----
+Use last date exported as default start date for next export.
+Some tidying.
+
+1.0.1
+-----
+Changed home grid to show more useful data
+Update last exported date
+
+1.0.0
+-----
+
+- First release
+
+
+Todo / Wish List
+----------------
+Add support to export data from other forms e.g. Formit
+Create a class for use by a scheduled process (e.g. scheduler or CRON job) to export all forms since last export.

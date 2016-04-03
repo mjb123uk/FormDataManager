@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model package="formdatamanager" baseClass="xPDOObject" platform="mysql" defaultEngine="MyISAM" version="1.1">
+	<object class="FdmLayouts" table="fdm_layouts" extends="xPDOSimpleObject">
+		<field key="formtype" dbtype="varchar" precision="20" phptype="string" null="false" index="index" />
+		<field key="formid" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" />
+		<field key="formfld_data" dbtype="text" phptype="string" null="true" />
+		<field key="formfld_extra" dbtype="text" phptype="string" null="true" />
+		<field key="createdon" dbtype="datetime" phptype="datetime" null="true" />
+		<field key="createdby" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" default="0" />
+		<field key="editedon" dbtype="datetime" phptype="datetime" null="true" />
+		<field key="editedby" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" default="0" />
+		<field key="lastexportfrom" dbtype="datetime" phptype="datetime" null="true" />
+		<field key="lastexportto" dbtype="datetime" phptype="datetime" null="true" />
+		<field key="lastautoexpfrom" dbtype="datetime" phptype="datetime" null="true" />
+		<field key="lastautoexpto" dbtype="datetime" phptype="datetime" null="true" />		
+		
+		<index alias="formtype" name="formtype" primary="false" unique="false" type="BTREE" >
+			<column key="formtype" length="" collation="A" null="false" />
+			<column key="formid" length="" collation="A" null="false" />
+		</index>
+	</object>
+</model>
