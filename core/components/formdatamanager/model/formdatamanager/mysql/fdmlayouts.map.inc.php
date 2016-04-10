@@ -8,6 +8,7 @@ $xpdo_meta_map['FdmLayouts']= array (
   array (
     'formtype' => NULL,
     'formid' => NULL,
+	'formname' => NULL,
     'formfld_data' => NULL,
     'formfld_extra' => NULL,
     'createdon' => NULL,
@@ -36,6 +37,14 @@ $xpdo_meta_map['FdmLayouts']= array (
       'attributes' => 'unsigned',
       'phptype' => 'integer',
       'null' => false,
+    ),
+	'formname' => 
+    array (
+      'dbtype' => 'varchar',
+      'precision' => '100',
+      'phptype' => 'string',
+      'null' => true,
+      'index' => 'index',
     ),
     'formfld_data' => 
     array (
@@ -125,6 +134,12 @@ $xpdo_meta_map['FdmLayouts']= array (
           'length' => '',
           'collation' => 'A',
           'null' => false,
+        ),
+		'formname' => 
+        array (
+          'length' => '',
+          'collation' => 'A',
+          'null' => true,
         ),
       ),
     ),

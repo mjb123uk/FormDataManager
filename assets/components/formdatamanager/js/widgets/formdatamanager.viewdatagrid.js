@@ -6,6 +6,7 @@ ModFormDataManager.viewdatagrid = function(config) {
 		,baseParams:{
 			action:'getviewdata'
 			,formid: ModFormDataManager.config.formid
+			,formname: ModFormDataManager.config.formname
 			,layoutid: ModFormDataManager.config.layoutid
 		}
 		,cm: viewdataColumnModel

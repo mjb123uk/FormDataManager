@@ -48,6 +48,7 @@ Ext.extend(ModFormDataManager.page.Layout,MODx.Component,{
             ,params: {
                 action: action
                 ,id: wid
+				,formname: ModFormDataManager.config.formname
                 ,data: data
             }
             ,listeners: {

@@ -36,7 +36,11 @@ class FormDataManagerViewdataManagerController extends modExtraManagerController
 		$classname = 'FdmLayouts';
 		$c = $this->modx->newQuery($classname);
 		$c->select($this->modx->getSelectColumns($classname, $classname));
-		$c->where(array('formid' => $formid));
+		if ($formid == 'formit') {
+			$formid = '"'.$formid.'"';
+			$c->where(array('formname' => $formname));
+		}
+		else $c->where(array('formid' => $formid));
 		$fdmdata = $this->modx->getCollection($classname, $c);
 		if (!empty($fdmdata)) $layout = $fdmdata;
 		if (count($layout)) {

@@ -134,6 +134,8 @@ ModFormDataManager.window.ExportData = function (config) {
 					,timeFormat: MODx.config.manager_time_format
 					,startDay: parseInt(MODx.config.manager_week_start)
 					,offset_time: MODx.config.server_offset_time
+					,allowBlank: true
+                    ,hiddenFormat: 'Y-m-d H:i:s'
                     ,grow: false
                     ,anchor: '100%'
 					,value: config.lastexportto
@@ -150,6 +152,8 @@ ModFormDataManager.window.ExportData = function (config) {
 					,timeFormat: MODx.config.manager_time_format
 					,startDay: parseInt(MODx.config.manager_week_start)
 					,offset_time: MODx.config.server_offset_time
+					,allowBlank: true
+                    ,hiddenFormat: 'Y-m-d H:i:s'
                     ,grow: false
                     ,anchor: '100%'
                 }]

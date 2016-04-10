@@ -6,6 +6,7 @@ ModFormDataManager.layoutgrid = function(config) {
 		,baseParams:{
 			action:'GetFldData'
 			,formid: ModFormDataManager.config.formid
+			,formname: ModFormDataManager.config.formname
 		}
 		,fields:['id','order','label','type','include','coltitle','default']
 		,paging:true
@@ -39,7 +40,7 @@ ModFormDataManager.layoutgrid = function(config) {
 			header:_('formdatamanager_fldgrid.include')
 			,dataIndex:'include'
 			,sortable:false
-			,width:15
+			,width:20
 			,editor: { xtype: 'modx-combo-boolean', renderer: 'boolean' }
 		}, {
 			header:_('formdatamanager_fldgrid.coltitle')
