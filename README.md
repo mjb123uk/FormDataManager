@@ -6,7 +6,7 @@ Currently, this works with form data generated via the Formz extra or FormIt sav
 Other forms or form data saved to custom tables will be added in the future.
 
 The front page lists the forms that exist in the site. By selecting the form you can define a layout to suit your processing requirements.
-Once am output definition has been created you can view the existing records and then choose to export the data.
+Once the output definition has been created you can view the existing records and then choose to export the data.
 When defining the layout you can select which fields are to be included, change the sequence/order of the fields,
 set alternative column titles and if needed set a default value to be used if the value of a field is empty.
 
