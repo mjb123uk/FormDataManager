@@ -11,7 +11,7 @@ ModFormDataManager.viewdatagrid = function(config) {
 		}
 		,cm: viewdataColumnModel
 		,fields: viewdataFields
-		,paging:true
+		,paging: true
 	});
 	ModFormDataManager.viewdatagrid.superclass.constructor.call(this,config);
 };

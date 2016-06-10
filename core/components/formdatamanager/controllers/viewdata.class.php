@@ -28,6 +28,7 @@ class FormDataManagerViewdataManagerController extends modExtraManagerController
 		$layoutid = 0;
 		$layout = array();
 		$lastexportto = "";
+		$istable = false;
 		
 		$packageName = "formdatamanager";
 		$packagepath = $this->modx->getOption('core_path') . 'components/' . $packageName . '/';
@@ -36,7 +37,8 @@ class FormDataManagerViewdataManagerController extends modExtraManagerController
 		$classname = 'FdmLayouts';
 		$c = $this->modx->newQuery($classname);
 		$c->select($this->modx->getSelectColumns($classname, $classname));
-		if ($formid == 'formit') {
+		if ($formid == 'table') $istable = true;
+		if ( ($formid == 'formit') || ($istable) ) {
 			$formid = '"'.$formid.'"';
 			$c->where(array('formname' => $formname));
 		}
@@ -61,10 +63,12 @@ class FormDataManagerViewdataManagerController extends modExtraManagerController
 		$flds = array();
 		$cms = array();
 		
-		$flds[] = "'senton'";
-		$flds[] = "'ip_address'";
-		$cms[] = "{ header: 'Created', width: 112, dataIndex: 'senton' }";
-		$cms[] = "{ header: 'IP Address', width: 72, dataIndex: 'ip_address' }";
+		if (!istable) {
+			$flds[] = "'senton'";
+			$flds[] = "'ip_address'";
+			$cms[] = "{ header: 'Created', width: 112, dataIndex: 'senton' }";
+			$cms[] = "{ header: 'IP Address', width: 72, dataIndex: 'ip_address' }";
+		}
 		
 		foreach($loflds as $lofld) {
 			if ($lofld['include']) {		// only include if column wanted		

@@ -1,0 +1,179 @@
+ModFormDataManager.tablesgrid = function(config) {
+	config=config || {};
+	Ext.applyIf(config,{
+		id:'mod-formdatamanager-tablesgrid'
+		,url: ModFormDataManager.config.connector_url
+		,baseParams:{
+			action: 'gettableslist'
+		}
+		,fields:['id','name','editedon','has_layout','lastexport','has_submission','submissions']
+		,paging:true
+		,remoteSort:true
+		,columns:[{
+			header:_('id')
+			,dataIndex:'id'
+			,width:4
+			,hidden: true
+		}, {
+			header:_('formdatamanager_tables.tablename')
+			,dataIndex:'name'
+			,width:100
+			,tooltip:_('formdatamanager_col1_qtip')
+		}, {
+			header:_('formdatamanager_form.editedon')
+			,dataIndex:'editedon'
+			,width:40
+			,hidden: true
+		}, {
+			header:_('formdatamanager_form.submissions')
+			,dataIndex:'submissions'
+			,align:'center'
+			,width:30
+		}, {
+			header:_('formdatamanager_form.has_layout')
+			,dataIndex:'has_layout'
+			,width:20
+		}, {
+			header:_('formdatamanager_form.lastexport')
+			,dataIndex:'lastexport'
+			,width:60			
+		}]
+        ,tbar: [{
+            text: _('formdatamanager_tables_new')
+            ,cls: 'primary-button'
+            ,handler: this.newFormTable
+            ,scope: this
+        }]
+	});
+	ModFormDataManager.tablesgrid.superclass.constructor.call(this,config);
+};
+Ext.extend(ModFormDataManager.tablesgrid,MODx.grid.Grid,{
+	windows:{}
+	,getMenu:function() {
+		var m = [];
+		var model = this.menu.record;
+		if (model.has_layout == 'No') {
+			m.push({
+				text:_('formdatamanager_tables_remove')
+				,handler:this.removeTable
+			});
+		}
+		m.push({
+			text:_('formdatamanager_define_layout')
+			,handler:this.defLayout
+		});
+		if ( (model.has_layout == 'Yes') && (model.has_submission) ) {
+			m.push({
+				text:_('formdatamanager_form.has_submissions')
+				,handler:this.viewData
+			});
+		}
+		this.addContextMenuItem(m);
+	}
+	,defLayout:function(btn,e) {
+		if (!this.menu.record || !this.menu.record.name) return false;
+		var r = this.menu.record;
+		MODx.loadPage('layout','namespace=formdatamanager&id=table&fnm='+r.name);
+	}
+	,viewData:function(btn,e) {
+		if (!this.menu.record || !this.menu.record.name) return false;
+		var r = this.menu.record;
+		MODx.loadPage('viewdata','namespace=formdatamanager&id=table&fnm='+r.name);
+	}
+	,newFormTable:function(btn, e) {
+		var ctbls="";
+		var allrecs = Ext.getCmp('mod-formdatamanager-tablesgrid').getStore().getRange();
+		Ext.each(allrecs, function (item) {
+			if (ctbls != "") ctbls = ctbls+"~";
+			ctbls = ctbls+item.data.name;                 
+		});
+		ModFormDataManager.config.tbldata = ctbls;
+        var window = new MODx.window.CreateFormTable({
+            listeners: {
+                success: {
+                    fn: this.refresh
+                    ,scope: this
+                }
+            }
+        });
+        window.show(e.target);
+    }
+	,removeTable:function(btn,e) {
+		if (!this.menu.record || !this.menu.record.name) return false;
+		var r = this.menu.record;
+		MODx.msg.confirm({
+            url: ModFormDataManager.config.connector_url
+            ,title: _('formdatamanager_table_remove')
+            ,text: _('formdatamanager_table_remove_confirm')
+            ,params: {
+                action: 'tables/remove'
+                ,id: r.id
+            }
+            ,listeners: {
+                'success':{fn:function(r) {
+                    MODx.msg.alert(_('success'),_('formdatamanager_table_removed'));
+					location.reload(true);
+                },scope:this}
+            }
+        });
+	}
+});
+Ext.reg('mod-formdatamanager-tablesgrid',ModFormDataManager.tablesgrid);
+
+MODx.combo.DbTables = function(config) {
+    config = config || {};
+    Ext.applyIf(config,{
+        name: 'dbtables'
+        ,hiddenName: 'dbtables'
+        ,displayField: 'name'
+        ,valueField: 'name'
+        ,fields: ['name']
+        ,typeAhead: true
+        ,minChars: 1
+        ,editable: true
+        ,allowBlank: true
+        // ,pageSize: 20
+        ,url: ModFormDataManager.config.connector_url
+        ,baseParams: {
+            action: 'tables/gettables'
+			,tbldata: ModFormDataManager.config.tbldata
+        }
+    });
+    MODx.combo.DbTables.superclass.constructor.call(this,config);
+};
+Ext.extend(MODx.combo.DbTables,MODx.combo.ComboBox);
+Ext.reg('modx-combo-tables',MODx.combo.DbTables);
+
+/**
+ * Generates the FormTable window.
+ *
+ * @class MODx.window.FormTable
+ * @extends MODx.Window
+ * @param {Object} config An object of options.
+ * @xtype modx-window-formdatamanager-table-create
+ */
+MODx.window.CreateFormTable = function(config) {
+    config = config || {};
+    Ext.applyIf(config,{
+        title: _('formdatamanager_tables_new')
+        ,url: ModFormDataManager.config.connector_url
+        ,action: 'tables/create'
+        ,fields: [{
+            xtype: 'modx-combo-tables'
+            ,fieldLabel: _('formdatamanager_tables.tablename')
+            ,name: 'tablename'
+            ,anchor: '100%'
+            ,allowBlank: false
+        },{
+            xtype: 'textarea'
+            ,fieldLabel: _('description')
+            ,name: 'description'
+            ,anchor: '100%'
+            ,grow: true
+        }]
+        ,keys: []
+    });
+    MODx.window.CreateFormTable.superclass.constructor.call(this,config);
+};
+Ext.extend(MODx.window.CreateFormTable,MODx.Window);
+Ext.reg('modx-window-formdatamanager-table-create',MODx.window.CreateFormTable);

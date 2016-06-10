@@ -1,5 +1,12 @@
-FormDataManager-1.1.0.pl
+FormDataManager-1.2.0.pl
 ========================
+
+Added new functionality for Custom Data Tables.
+Improved data view/export paging.
+
+1.1.0.pl
+--------
+Release version
 
 1.0.3
 -----

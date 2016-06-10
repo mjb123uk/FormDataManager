@@ -35,7 +35,7 @@ class FormDataManagerLayoutManagerController extends modExtraManagerController {
 		$classname = 'FdmLayouts';
 		$c = $this->modx->newQuery($classname);
 		$c->select($this->modx->getSelectColumns($classname, $classname));
-		if ($formid == 'formit') {
+		if ( ($formid == 'formit') || ($formid == 'table') ) {
 			$formid = '"'.$formid.'"';
 			$c->where(array('formname' => $formname));
 		}

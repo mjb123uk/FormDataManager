@@ -15,6 +15,7 @@ class FormDataManagerHomeManagerController extends modExtraManagerController {
 		#add js
 		if ($this>hasformz) $this->addJavascript($this->config['assets_url'].'js/widgets/formdatamanager.formzgrid.js');
 		if ($this->hasformit) $this->addJavascript($this->config['assets_url'].'js/widgets/formdatamanager.formitgrid.js');
+		$this->addJavascript($this->config['assets_url'].'js/widgets/formdatamanager.tablesgrid.js');
         $this->addJavascript($this->config['assets_url'].'js/widgets/formdatamanager.homepanel.js');
         $this->addJavascript($this->config['assets_url'].'js/sections/home.js');
     }
@@ -35,6 +36,7 @@ class FormDataManagerHomeManagerController extends modExtraManagerController {
         ModFormDataManager.config.connector_url = "'.$this->config['connector_url'].'";
 		ModFormDataManager.config.hasformz = '.$this->hasformz.';
 		ModFormDataManager.config.hasformit = '.$this->hasformit.';
+		ModFormDataManager.config.tbldata = [];
         </script>');
 		$this->addJavascript($this->config['assets_url'].'js/formdatamanager.js');
     }

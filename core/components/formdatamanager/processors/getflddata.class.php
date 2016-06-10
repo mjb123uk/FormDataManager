@@ -27,8 +27,19 @@ class FormDataManagerGetFldDataProcessor extends modProcessor
 		$classname = 'FdmLayouts';
 		$c = $this->modx->newQuery($classname);
 		$c->select($this->modx->getSelectColumns($classname, $classname));
-		if ($formid == "formit") $c->where(array('formname' => $formname));
-		else $c->where(array('formid' => $formid));
+		// note formid = formid or formname
+		switch ($formid) {
+			case "formit":
+				$c->where(array('formname' => $formname));
+				break;
+			case "table":
+				// custom table
+				$c->where(array('formname' => $formname));
+				break;			
+			default:
+				// formz
+				$c->where(array('formid' => $formid));
+		}
 		$count = $this->modx->getCount($classname, $c);
 		$fdmdata = $this->modx->getCollection($classname, $c);
 		if (!empty($fdmdata)) $layout = $fdmdata;
@@ -37,11 +48,28 @@ class FormDataManagerGetFldDataProcessor extends modProcessor
 			// Format for grid
 			foreach($layout as $fdmd) {
 				$fd = $fdmd->toArray();
-				$ldata = json_decode($fd['formfld_data']);
-				foreach($ldata as $ro) {
-					$rows = json_decode($ro,TRUE);
-					foreach($rows as $r) {
-						$data[] = $r;
+				if ( ($fd["formtype"] == "table") && (empty($fd['formfld_data'])) ) {
+					// first time so build fields from table
+					$query = "SHOW COLUMNS FROM ".$formname;
+					$result = $this->modx->query($query);
+					if (!is_object($result)) return $this->failure($this->modx->lexicon('formdatamanager_tables_sqlfail'));
+					$flddata = $result->fetchAll(PDO::FETCH_ASSOC);
+					$ord = 0;
+					foreach ($flddata as &$field) {
+						$fl = $field['Field'];
+						//$type = $this->getFieldType($field['Type']);
+						$type = 'text';
+						$data[] = array('id' => $ord,'order' => $ord,'label' => $fl,'type' => $type,'include' => 1,'coltitle' => $fl,'default' => '');
+						$ord++;
+					}				
+				}
+				else {
+					$ldata = json_decode($fd['formfld_data']);
+					foreach($ldata as $ro) {
+						$rows = json_decode($ro,TRUE);
+						foreach($rows as $r) {
+							$data[] = $r;
+						}
 					}
 				}
 			}
@@ -108,6 +136,21 @@ class FormDataManagerGetFldDataProcessor extends modProcessor
 		}
 			
 		return $this->outputArray($data,count($data));
+    }
+	
+	/**
+	* @param $type
+	* @return string
+	*/
+    public function getFieldType($type){
+        if (preg_match('/(blob|text|enum|set)/i',$type)) {
+            $type = 'string';
+        } elseif (preg_match('/(int|float|double|decimal|dec|bool)/i',$type)) {
+            $type = 'number';
+        } else {
+            $type = 'auto';
+        }
+        return $type;
     }
 }
 return 'FormDataManagerGetFldDataProcessor';

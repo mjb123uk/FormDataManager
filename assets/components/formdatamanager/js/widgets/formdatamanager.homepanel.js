@@ -51,6 +51,18 @@ Ext.extend(ModFormDataManager.HomePanel,MODx.Panel,{
 					,preventRender:true
 					,cls:'main-wrapper'
 				}]
+            });
+			tabs.add({
+				title:_('formdatamanager_home_tab3')
+				,items:[{
+					html:'<p>'+_('formdatamanager_tables_desc')+'</p>'
+					,border:false
+					,bodyCssClass:'panel-desc'
+				}, {
+					xtype:'mod-formdatamanager-tablesgrid'
+					,preventRender:true
+					,cls:'main-wrapper'
+				}]
             });				
 		}
 		// if no forms then show message
