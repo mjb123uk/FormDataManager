@@ -58,6 +58,8 @@ class FormDataManagerGetTablesProcessor extends modProcessor
 	private function getmodxtables()
 	{
 		$tbls = array();
+		// add the table used by FormDataManager to hide it
+		$tbls[] = "fdm_layouts";	
 		// 'modx';
 		$this->parseSchema(MODX_CORE_PATH . "/model/schema/modx.mysql.schema.xml",$tbls);
 		// 'modx.transport';
