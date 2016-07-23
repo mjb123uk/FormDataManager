@@ -12,6 +12,8 @@ class FormDataManagerHomeManagerController extends modExtraManagerController {
     }
 	
 	function process(array $scriptProperties = array()) {
+		#add css
+		$this->addCss($this->config['assets_url'].'css/mgr.css');
 		#add js
 		if ($this>hasformz) $this->addJavascript($this->config['assets_url'].'js/widgets/formdatamanager.formzgrid.js');
 		if ($this->hasformit) $this->addJavascript($this->config['assets_url'].'js/widgets/formdatamanager.formitgrid.js');

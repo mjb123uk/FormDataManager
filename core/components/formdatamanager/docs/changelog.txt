@@ -1,6 +1,11 @@
-FormDataManager-1.2.0.pl
+FormDataManager-1.2.1.pl
 ========================
 
+Added inline buttons to grids to improve UX.
+Updated lexicon file to clarify some text.
+
+1.2.0.pl
+--------
 Added new functionality for Custom Data Tables.
 Improved data view/export paging.
 

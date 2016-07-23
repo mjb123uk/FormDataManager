@@ -17,8 +17,8 @@ ModFormDataManager.tablesgrid = function(config) {
 		}, {
 			header:_('formdatamanager_tables.tablename')
 			,dataIndex:'name'
-			,width:100
-			,tooltip:_('formdatamanager_col1_qtip')
+			,width:80
+			,tooltip:_('formdatamanager_tablescol1_qtip')
 		}, {
 			header:_('formdatamanager_form.editedon')
 			,dataIndex:'editedon'
@@ -28,16 +28,49 @@ ModFormDataManager.tablesgrid = function(config) {
 			header:_('formdatamanager_form.submissions')
 			,dataIndex:'submissions'
 			,align:'center'
-			,width:30
+			,width:35
 		}, {
 			header:_('formdatamanager_form.has_layout')
 			,dataIndex:'has_layout'
-			,width:20
+			,width:30
 		}, {
 			header:_('formdatamanager_form.lastexport')
 			,dataIndex:'lastexport'
-			,width:60			
-		}]
+			,width:50			
+		}, {
+            header: '&#160;'
+            ,renderer: function (v, md, rec) {
+                var btns = '';
+                var model = rec.data;
+				
+ 				if (model.has_layout == 'No') {
+                    btns += ModFormDataManager.grid.btnRenderer({
+                        items: [{
+                            id: 'remove-' + rec.id
+                            ,fieldLabel: _('formdatamanager_tables_remove' )
+                            ,className: 'remove'
+                        }]
+                    });
+                }
+                btns += ModFormDataManager.grid.btnRenderer({
+                    items: [{
+                        id: 'deflayout-' + rec.id
+                        ,fieldLabel: _('formdatamanager_define_layout')
+                        ,className: 'deflayout'
+                    }]
+                });
+				if (model.has_layout == 'Yes') {
+                    btns += ModFormDataManager.grid.btnRenderer({
+                        items: [{
+                            id: 'listexport-' + rec.id
+                            ,fieldLabel: _('formdatamanager_form.has_submissions' )
+                            ,className: 'listexport'
+                        }]
+                    });
+                }
+                return btns;
+            }
+        }]
         ,tbar: [{
             text: _('formdatamanager_tables_new')
             ,cls: 'primary-button'
@@ -46,6 +79,9 @@ ModFormDataManager.tablesgrid = function(config) {
         }]
 	});
 	ModFormDataManager.tablesgrid.superclass.constructor.call(this,config);
+	
+	// Attach click event on buttons
+    this.on('click', this.onClick, this);	
 };
 Ext.extend(ModFormDataManager.tablesgrid,MODx.grid.Grid,{
 	windows:{}
@@ -117,6 +153,26 @@ Ext.extend(ModFormDataManager.tablesgrid,MODx.grid.Grid,{
             }
         });
 	}
+	,onClick: function(e){
+        var t = e.getTarget();
+        var elm = t.className.split(' ')[2];
+        if (elm == 'controlBtn') {
+            var action = t.className.split(' ')[3];
+            var record = this.getSelectionModel().getSelected();
+            this.menu.record = record.data;
+            switch (action) {
+                case 'deflayout':
+                    this.defLayout('', e);
+                    break;
+                case 'listexport':
+                    this.viewData();
+                    break;
+                case 'remove':
+                    this.removeTable();
+                    break;					
+            }
+        }
+    }
 });
 Ext.reg('mod-formdatamanager-tablesgrid',ModFormDataManager.tablesgrid);
 
