@@ -22,3 +22,4 @@ and defining a new layout.
 
 This CMP uses the Modx 2.3+ menu system and by default creates a menu entry under the Extras (Components) menu.
 
+Credit to the developers of Formz & Formit some code extracts/ideas used in this Extra.
