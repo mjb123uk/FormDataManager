@@ -25,10 +25,12 @@ if ($layout) return $modx->error->failure($modx->lexicon('formdatamanager_layout
 
 $layout = $modx->newObject('FdmLayouts');
 $data = $_POST['data'];
+$exdata = (isset($_POST['exdata'])) ? $_POST['exdata'] : null;
 $layout->set('formid',$formid);
 $layout->set('formtype',$formtype);
 $layout->set('formname',$formname);
 $layout->set('formfld_data',$data);
+$layout->set('formfld_extra',$exdata);
 $layout->set('createdon',date('Y-m-d H:i:s',time()));
 $layout->set('createdby',$modx->user->get('id'));
 

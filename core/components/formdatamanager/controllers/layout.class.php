@@ -27,6 +27,9 @@ class FormDataManagerLayoutManagerController extends modExtraManagerController {
 		$formname = trim($_GET['fnm']);
 		$layoutid = 0;
 		$layout = array();
+		$istable = false;		
+		$hometab = "FormIt";
+		$fldextra = "N/A";
 		
 		$packageName = "formdatamanager";
 		$packagepath = $this->modx->getOption('core_path') . 'components/' . $packageName . '/';
@@ -35,11 +38,18 @@ class FormDataManagerLayoutManagerController extends modExtraManagerController {
 		$classname = 'FdmLayouts';
 		$c = $this->modx->newQuery($classname);
 		$c->select($this->modx->getSelectColumns($classname, $classname));
-		if ( ($formid == 'formit') || ($formid == 'table') ) {
+		if ($formid == 'table') {
+			$istable = true;
+			$hometab = "Table";		
+		}
+		if ( ($formid == 'formit') || ($istable) ) {
 			$formid = '"'.$formid.'"';
 			$c->where(array('formname' => $formname));
 		}
-		else $c->where(array('formid' => $formid));
+		else {
+			$c->where(array('formid' => $formid));
+			$hometab = "Formz";
+		}
 		$count = $this->modx->getCount($classname, $c);
 		$fdmdata = $this->modx->getCollection($classname, $c);
 		if (!empty($fdmdata)) $layout = $fdmdata;
@@ -47,6 +57,9 @@ class FormDataManagerLayoutManagerController extends modExtraManagerController {
 			foreach($layout as $fdmd) {
 				$fd = $fdmd->toArray();
 				if (isset($fd['id'])) $layoutid = $fd['id'];
+				if ($istable) {
+					if (isset($fd['formfld_extra'])) $fldextra = $fd['formfld_extra'];
+				}
 			}
 		}
 	
@@ -55,6 +68,8 @@ class FormDataManagerLayoutManagerController extends modExtraManagerController {
 		ModFormDataManager.config.formid = '.$formid.';
 		ModFormDataManager.config.formname = "'.$formname.'";
 		ModFormDataManager.config.layoutid = '.$layoutid.';
+		ModFormDataManager.config.fldextra = "'.$fldextra.'";		
+		ModFormDataManager.config.hometab = "'.$hometab.'";		
         </script>');
 		$this->addJavascript($this->config['assets_url'].'js/formdatamanager.js');
     }

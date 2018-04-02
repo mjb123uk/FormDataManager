@@ -15,7 +15,7 @@ ModFormDataManager.page.Viewdata=function(config) {
 			,id:'formdatamanager-exit'
 			,cls:'primary-button'
 			,handler:function(){
-				MODx.loadPage('home','namespace=formdatamanager');
+				MODx.loadPage('home','namespace=formdatamanager&tn='+ModFormDataManager.config.hometab);
 			}
 		},{
 			text:_('formdatamanager_export')
@@ -31,6 +31,7 @@ ModFormDataManager.page.Viewdata=function(config) {
                     });
                 }
                 this.exportDataWindow.show(e.target);
+				this.exportDataWindow.setup(e.target);
             }
 			,scope: this
 		}]
@@ -93,6 +94,7 @@ ModFormDataManager.window.ExportData = function (config) {
                         ,formid: config.formid
 						,formname: config.formname
 						,layoutid: config.layoutid
+						,fldextra: ModFormDataManager.config.fldextra
 						,lastexportto: config.lastexportto
                         ,startDate: Ext.getCmp('startDate').getValue()
                         ,endDate: Ext.getCmp('endDate').getValue()
@@ -111,6 +113,7 @@ ModFormDataManager.window.ExportData = function (config) {
         }]
         ,fields: [{
             title: _('formdatamanager_export.daterange')
+			,id: 'fdmExOpts'
             ,layout: 'column'
             ,bodyCssClass: 'main-wrapper'
             ,autoHeight: true
@@ -157,10 +160,27 @@ ModFormDataManager.window.ExportData = function (config) {
                     ,grow: false
                     ,anchor: '100%'
                 }]
-            }]
-        }]
+			}]
+		},{
+			html: "<p>"+_('formdatamanager_export.nodates1')+"</p><br><p>"+_('formdatamanager_export.nodates2')+"</p>"
+			,id: 'fdmExOptsCT'
+			,hidden: true
+		}]
     });
     ModFormDataManager.window.ExportData.superclass.constructor.call(this, config);
 };
-Ext.extend(ModFormDataManager.window.ExportData, MODx.Window);
+Ext.extend(ModFormDataManager.window.ExportData, MODx.Window, {
+	setup: function (w) {
+		if (ModFormDataManager.config.hometab == "Table") {
+			// check if export fields defined
+			if (ModFormDataManager.config.fldextra == "") {
+				// hide export date range	
+				var ewo = Ext.getCmp("fdmExOpts");
+				ewo.hide();
+				var ewo = Ext.getCmp("fdmExOptsCT");
+				ewo.show();
+			}
+		}
+	}	
+});
 Ext.reg('formdatamanager-window-export-data', ModFormDataManager.window.ExportData);

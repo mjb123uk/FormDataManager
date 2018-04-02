@@ -19,8 +19,9 @@ class FormDataManagerGetViewDataProcessor extends modProcessor
     {
 		$scriptProperties = $this->getProperties();
 		$formid = $scriptProperties['formid'];
-		$layoutid = $scriptProperties['layoutid'];
 		$formname = $scriptProperties['formname'];
+		$layoutid = $scriptProperties['layoutid'];
+		$fldextra = $scriptProperties['fldextra'];	
 		$limit = (isset($scriptProperties['limit'])) ? $scriptProperties['limit'] : 20;
 		$start = (isset($scriptProperties['start'])) ? $scriptProperties['start'] : 0;
 		$limit = $start+$limit;
@@ -87,15 +88,10 @@ class FormDataManagerGetViewDataProcessor extends modProcessor
 					}
 					break;
 				case "table":
-					/*
-					$range = "";
-					if ($limit > 0) {
-						//if ($start > 0) $range = " LIMIT ".$limit.",".$start;
-						//else $range = " LIMIT ".$limit;
-					}
-					$q = "SELECT * FROM ".$formname.$range;
-					*/
 					$q = "SELECT * FROM ".$formname;
+					if (!empty($fldextra)) {
+						$q .= ' ORDER BY `'.$fldextra.'`';
+					}
 					$result = $this->modx->query($q);
 					if (is_object($result)) {
 						$tdata = $result->fetchAll(PDO::FETCH_ASSOC);
@@ -107,14 +103,14 @@ class FormDataManagerGetViewDataProcessor extends modProcessor
 							continue;
 						}						
 						$data = array();
-						//$data['senton'] = '';
-						//$data['ip_address'] = '';
+
 						foreach($loflds as $lofld) {
 							if ($lofld['include']) {		// only include if column wanted
 								$fl = $lofld['label'];
 								$v = (isset($values[$fl])) ? $values[$fl] : "";
 								if (is_array($v)) $v = implode('/', $v);
 								if ( (empty($v)) && (!empty($lofld['default'])) ) $v = $lofld['default'];
+								$v = $this->formatfld($v,$lofld['type']);
 								$str = preg_replace('/[^A-Za-z0-9_-]/', '', $fl);
 								$data[$str] = $v;
 							}
@@ -172,5 +168,26 @@ class FormDataManagerGetViewDataProcessor extends modProcessor
 		}
 		return $this->outputArray($vrows,$count);
     }
+	
+	private function formatfld($val,$type) {
+		if ($type == "date") {
+			// test if string or internal date/time stamp
+			if ($this->isValidTimeStamp($val)) {
+				// convert to date string
+				$val = date('Y-m-d H:i:s', $val);
+			}
+		}
+		return $val;
+	}
+	
+	private function isValidTimeStamp($timestamp) {
+		$check = (is_int($timestamp) OR is_float($timestamp))
+			? $timestamp
+			: (string) (int) $timestamp;
+		return  ($check === $timestamp)
+			AND ( (int) $timestamp <=  PHP_INT_MAX)
+			AND ( (int) $timestamp >= ~PHP_INT_MAX);
+	}	
+	
 }
 return 'FormDataManagerGetViewDataProcessor';

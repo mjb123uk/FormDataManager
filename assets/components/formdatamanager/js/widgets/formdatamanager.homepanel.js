@@ -76,7 +76,22 @@ Ext.extend(ModFormDataManager.HomePanel,MODx.Panel,{
 				}]
             });	
 		}
-		tabs.setActiveTab( 0 );	
+		var ht = 0;
+		var htn = ModFormDataManager.config.hometab;
+		if (htn == "FormIt") {
+			if (ModFormDataManager.config.hasformz) ht += 1;
+		}
+		if (htn == "Table") {
+			if (ModFormDataManager.config.hasformz) ht += 1;
+			if (ModFormDataManager.config.hasformit) ht += 1;
+		}
+		
+		var docheight = document.body.clientHeight;
+		var gridheight = 140;
+
+		ModFormDataManager.config.gridheight = (docheight-gridheight)-100;
+		
+		tabs.setActiveTab( ht );
     }	
 });
 Ext.reg('mod-formdatamanager-homepanel',ModFormDataManager.HomePanel);

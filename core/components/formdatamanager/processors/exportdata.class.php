@@ -22,6 +22,7 @@ class FormDataManagerExportDataProcessor extends modProcessor
 		$formid = $scriptProperties['formid'];
 		$formname = $scriptProperties['formname'];
 		$layoutid = $scriptProperties['layoutid'];
+		$fldextra = $scriptProperties['fldextra'];		
 		$startDate = $scriptProperties['startDate'];
     	$endDate = $scriptProperties['endDate'];
 		$istable = false;
@@ -74,12 +75,12 @@ class FormDataManagerExportDataProcessor extends modProcessor
 						$c = $this->modx->newQuery($classname);
 						$c->select($this->modx->getSelectColumns($classname, $classname));
 						$c->where(array('form' => $formname));
-						if (! empty($startDate)) {
+						if (!empty($startDate)) {
 							$c->andCondition(array(
 								'date:>' => strtotime($startDate)
 							));
 						}
-						if (! empty($endDate)) {
+						if (!empty($endDate)) {
 							$c->andCondition(array(
 								'date:<' => strtotime($endDate)
 							));
@@ -110,7 +111,36 @@ class FormDataManagerExportDataProcessor extends modProcessor
 					break;
 				case "table":
 					$q = "SELECT * FROM ".$formname;
+					$wh = "";
+					if (!empty($fldextra)) {
+						// get a record to test format of date field
+						$result = $this->modx->query($q." LIMIT 1");
+						if (is_object($result)) {
+							$row = $result->fetch(PDO::FETCH_ASSOC);
+							$val = $row[$fldextra];
+							$usedatestring = false;
+							// test if string or internal date/time stamp
+							if (!$this->isValidTimeStamp($val)) $usedatestring = true;
+							if (!empty($startDate)) {
+								if ($usedatestring) $w = "'".date('Y-m-d H:i:s', strtotime($startDate))."'";
+								else $w = strtotime($startDate);
+								if (empty($wh)) $wh = " WHERE ";
+								$wh .= '`'.$fldextra.'` > '.$w;
+							}
+							if (!empty($endDate)) {
+								if ($usedatestring) $w = "'".date('Y-m-d H:i:s', strtotime($endDate))."'";
+								else $w = strtotime($endDate);
+								if (empty($wh)) $wh = " WHERE ";
+								else $wh .= " AND ";
+								$wh .= '`'.$fldextra.'` < '.$w;
+							}			
+						}
+						unset($result);
+						$q .= $wh;
+						$q .= ' ORDER BY `'.$fldextra.'`';
+					}
 					$result = $this->modx->query($q);
+					$tdata = array();
 					if (is_object($result)) {
 						$tdata = $result->fetchAll(PDO::FETCH_ASSOC);
 					}
@@ -120,6 +150,7 @@ class FormDataManagerExportDataProcessor extends modProcessor
 							if ($lofld['include']) {		// only include if column wanted
 								$fl = $lofld['label'];
 								$v = (isset($values[$fl])) ? $values[$fl] : "";
+								if ( (is_string($v)) && (substr($v,0,1) == "{") ) $v = str_replace('"','""',$v);
 								if (is_array($v)) $v = implode('/', $v);
 								if ( (empty($v)) && (!empty($lofld['default'])) ) $v = $lofld['default'];
 								$data[] = $v;
@@ -140,12 +171,12 @@ class FormDataManagerExportDataProcessor extends modProcessor
 						$c = $this->modx->newQuery($classname);
 						$c->select($this->modx->getSelectColumns($classname, $classname));
 						$c->where(array('form_id' => $formid));
-						if (! empty($startDate)) {
+						if (!empty($startDate)) {
 							$c->andCondition(array(
 								'senton:>' => date('Y-m-d', strtotime($startDate)) . ' 00:00:00'
 							));
 						}
-						if (! empty($endDate)) {
+						if (!empty($endDate)) {
 							$c->andCondition(array(
 								'senton:<' => date('Y-m-d', strtotime($endDate)) . ' 23:59:59'
 							));
@@ -256,6 +287,15 @@ class FormDataManagerExportDataProcessor extends modProcessor
             header((string) $header);
         }
     }	
+	
+	private function isValidTimeStamp($timestamp) {
+		$check = (is_int($timestamp) OR is_float($timestamp))
+			? $timestamp
+			: (string) (int) $timestamp;
+		return  ($check === $timestamp)
+			AND ( (int) $timestamp <=  PHP_INT_MAX)
+			AND ( (int) $timestamp >= ~PHP_INT_MAX);
+	}		
 	
 }
 return 'FormDataManagerExportDataProcessor';

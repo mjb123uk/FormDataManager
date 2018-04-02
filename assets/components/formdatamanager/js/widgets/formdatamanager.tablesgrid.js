@@ -59,7 +59,7 @@ ModFormDataManager.tablesgrid = function(config) {
                         ,className: 'deflayout'
                     }]
                 });
-				if (model.has_layout == 'Yes') {
+				if (model.has_submission) {
                     btns += ModFormDataManager.grid.btnRenderer({
                         items: [{
                             id: 'listexport-' + rec.id
@@ -114,7 +114,7 @@ Ext.extend(ModFormDataManager.tablesgrid,MODx.grid.Grid,{
 	,viewData:function(btn,e) {
 		if (!this.menu.record || !this.menu.record.name) return false;
 		var r = this.menu.record;
-		MODx.loadPage('viewdata','namespace=formdatamanager&id=table&fnm='+r.name);
+		MODx.loadPage('viewdata','namespace=formdatamanager&id=table&fnm='+r.name+'&gh='+ModFormDataManager.config.gridheight);
 	}
 	,newFormTable:function(btn, e) {
 		var ctbls="";

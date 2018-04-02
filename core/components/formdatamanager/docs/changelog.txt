@@ -1,6 +1,15 @@
-FormDataManager-1.2.1.pl
+FormDataManager-1.2.2.pl
 ========================
 
+Added feature to set the layout field type (text,textarea,date,number).
+Changed view data grid to enable horizontal scrolling and column changes to make viewing data easier.
+Column widths in view data grid sized according to field type.
+Added check on returning to home page to go to last referenced tab.
+New option to define a date field to be used for export date range for Custom Tables.
+Improved export routine do correctly select records and output JSON data for CSV.
+
+1.2.1.pl
+--------
 Added inline buttons to grids to improve UX.
 Updated lexicon file to clarify some text.
 

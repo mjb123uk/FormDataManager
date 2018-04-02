@@ -17,7 +17,9 @@ if ($wtype == "table") {
 	if (empty($wdata)) $ntbl = true;
 }
 $data = $_POST['data'];
+$exdata = (isset($_POST['exdata'])) ? $_POST['exdata'] : null;
 $layout->set('formfld_data',$data);
+$layout->set('formfld_extra',$exdata);
 if ($ntbl) {
 	$layout->set('createdon',date('Y-m-d H:i:s',time()));
 	$layout->set('createdby',$modx->user->get('id'));

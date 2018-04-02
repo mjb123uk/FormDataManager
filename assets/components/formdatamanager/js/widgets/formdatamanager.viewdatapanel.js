@@ -25,8 +25,10 @@ ModFormDataManager.ViewdataPanel=function(config) {
 					,bodyCssClass:'panel-desc'
 				}, {
 					xtype:'mod-formdatamanager-viewdatagrid'
-					,preventRender:true
 					,cls:'main-wrapper'
+					/*
+					,preventRender:true		
+					*/
 				}]
 			}]
 		}]

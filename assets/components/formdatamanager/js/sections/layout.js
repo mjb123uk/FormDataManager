@@ -15,7 +15,7 @@ ModFormDataManager.page.Layout=function(config) {
 			,id:'formdatamanager-exit'
 			,cls:'primary-button'
 			,handler:function(){
-				MODx.loadPage('home','namespace=formdatamanager');
+				MODx.loadPage('home','namespace=formdatamanager&tn='+ModFormDataManager.config.hometab);
 			}
 		},{
 			text:_('formdatamanager_save')
@@ -35,6 +35,7 @@ Ext.extend(ModFormDataManager.page.Layout,MODx.Component,{
     windows: {}
     ,saveLayout: function(btn,e) {
         var data = this.prepareLayout();
+		var exdata = Ext.get("ext-gen95").getValue();
 		// test if new or update
 		var action = 'layouts/update';
 		var wid = ModFormDataManager.config.layoutid
@@ -50,6 +51,7 @@ Ext.extend(ModFormDataManager.page.Layout,MODx.Component,{
                 ,id: wid
 				,formname: ModFormDataManager.config.formname
                 ,data: data
+				,exdata: exdata
             }
             ,listeners: {
                 'success':{fn:function(r) {

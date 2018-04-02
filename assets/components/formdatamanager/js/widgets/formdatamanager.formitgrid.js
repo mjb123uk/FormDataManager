@@ -93,7 +93,7 @@ Ext.extend(ModFormDataManager.formitgrid,MODx.grid.Grid,{
 	,viewData:function(btn,e) {
 		if (!this.menu.record || !this.menu.record.name) return false;
 		var r = this.menu.record;
-		MODx.loadPage('viewdata','namespace=formdatamanager&id=formit&fnm='+r.name);
+		MODx.loadPage('viewdata','namespace=formdatamanager&id=formit&fnm='+r.name+'&gh='+ModFormDataManager.config.gridheight);
 	}
 	,onClick: function(e){
         var t = e.getTarget();

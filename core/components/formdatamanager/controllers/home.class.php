@@ -29,6 +29,8 @@ class FormDataManagerHomeManagerController extends modExtraManagerController {
     public function checkPermissions() { return true;}
 
     function initialize() {
+		
+		$hometab = (isset($_GET['tn'])) ? $_GET['tn'] : "";
 		$formzmodelpath = $this->modx->getOption('core_path') . 'components/formz/model/';
 		if (is_dir($formzmodelpath)) $this->hasformz = 1;
 		$formitmodelpath = $this->modx->getOption('core_path') . 'components/formit/model/';
@@ -38,6 +40,8 @@ class FormDataManagerHomeManagerController extends modExtraManagerController {
         ModFormDataManager.config.connector_url = "'.$this->config['connector_url'].'";
 		ModFormDataManager.config.hasformz = '.$this->hasformz.';
 		ModFormDataManager.config.hasformit = '.$this->hasformit.';
+		ModFormDataManager.config.gridheight = 400;
+		ModFormDataManager.config.hometab = "'.$hometab.'";		
 		ModFormDataManager.config.tbldata = [];
         </script>');
 		$this->addJavascript($this->config['assets_url'].'js/formdatamanager.js');

@@ -25,10 +25,14 @@ class FormDataManagerViewdataManagerController extends modExtraManagerController
     function initialize() {
 		$formid = trim($_GET['id']);
 		$formname = trim($_GET['fnm']);
+		$gh = (isset($_GET['gh'])) ? trim($_GET['gh']) : 500;
+		if ($gh == "undefined") $gh = 500;
 		$layoutid = 0;
 		$layout = array();
 		$lastexportto = "";
 		$istable = false;
+		$hometab = "FormIt";
+		$fldextra = "";
 		
 		$packageName = "formdatamanager";
 		$packagepath = $this->modx->getOption('core_path') . 'components/' . $packageName . '/';
@@ -37,18 +41,28 @@ class FormDataManagerViewdataManagerController extends modExtraManagerController
 		$classname = 'FdmLayouts';
 		$c = $this->modx->newQuery($classname);
 		$c->select($this->modx->getSelectColumns($classname, $classname));
-		if ($formid == 'table') $istable = true;
+		if ($formid == 'table') {
+			$istable = true;
+			$hometab = "Table";		
+		}
 		if ( ($formid == 'formit') || ($istable) ) {
 			$formid = '"'.$formid.'"';
 			$c->where(array('formname' => $formname));
 		}
-		else $c->where(array('formid' => $formid));
+		else {
+			$c->where(array('formid' => $formid));
+			$hometab = "Formz";
+		}
 		$fdmdata = $this->modx->getCollection($classname, $c);
 		if (!empty($fdmdata)) $layout = $fdmdata;
 		if (count($layout)) {
 			foreach($layout as $fdmd) {
 				$fd = $fdmd->toArray();
 				if (isset($fd['id'])) $layoutid = $fd['id'];
+				if ($istable) {
+					if (isset($fd['formfld_extra'])) $fldextra = $fd['formfld_extra'];
+					if ( (empty($fldextra)) || ($fldextra == "N/A") ) $fldextra = "";	// always clear in case null
+				}
 				$data = json_decode($fd['formfld_data']);
 				foreach($data as $ro) {
 					$rows = json_decode($ro,TRUE);
@@ -74,19 +88,45 @@ class FormDataManagerViewdataManagerController extends modExtraManagerController
 			if ($lofld['include']) {		// only include if column wanted		
 				$str = preg_replace('/[^A-Za-z0-9_-]/', '', $lofld['label']);
 				$flds[] = "'".$str."'";
-				$cms[] = "{ header: '".$lofld['coltitle']."', dataIndex: '".$str."' }";
+				$fw = "200";
+				switch ($lofld['type']) {
+					case 'text':
+						$fw = "200";
+						break;
+					case 'textarea':
+						$fw = "300";
+						break;
+					case 'date':
+						$fw = "160";					
+						/*
+							//renderer: Ext.util.Format.dateRenderer('m/d/Y'),
+							xtype: 'datecolumn', // use xtype instead of renderer
+							format: 'M/d/Y' // configuration property for Ext.grid.DateColumn
+						*/
+						//$fw = "160, xtype: 'datecolumn', format: 'd M Y'";						
+						break;
+					case 'number':						
+						$fw = "120";
+						if (strtolower($str) == "id") $fw = "80";
+						$fw .= ", align: 'right'";
+						break;						
+				}				
+				$cms[] = "{ header: '".$lofld['coltitle']."', width: $fw, dataIndex: '".$str."' }";
 			}
 		}
 		
-		$gs = "var viewdataFields = [".implode(',',$flds)."];";
-		$gs .= "var viewdataColumnModel = new Ext.grid.ColumnModel([".implode(',',$cms)."]);";
+		$gs = "var viewdataFields = [".implode(',',$flds)."];\n";
+		$gs .= "var viewdataColumnModel = new Ext.grid.ColumnModel([".implode(',',$cms)."]);\n";
+		$gs .= "var fdmgh = ".$gh.";\n";
 		
         $this->addHtml('<script type="text/javascript">
         ModFormDataManager.config.connector_url = "'.$this->config['connector_url'].'";
 		ModFormDataManager.config.formid = '.$formid.';
 		ModFormDataManager.config.formname = "'.$formname.'";
 		ModFormDataManager.config.layoutid = '.$layoutid.';
+		ModFormDataManager.config.fldextra = "'.$fldextra.'";			
 		ModFormDataManager.config.lastexportto = "'.$lastexportto.'";
+		ModFormDataManager.config.hometab = "'.$hometab.'";
 		'.$gs.'
         </script>');
 		$this->addJavascript($this->config['assets_url'].'js/formdatamanager.js');
