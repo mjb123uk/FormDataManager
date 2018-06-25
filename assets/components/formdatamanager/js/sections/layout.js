@@ -35,7 +35,7 @@ Ext.extend(ModFormDataManager.page.Layout,MODx.Component,{
     windows: {}
     ,saveLayout: function(btn,e) {
         var data = this.prepareLayout();
-		var exdata = Ext.get("ext-gen95").getValue();
+		var exdata = Ext.getCmp("exfldname").getValue();
 		// test if new or update
 		var action = 'layouts/update';
 		var wid = ModFormDataManager.config.layoutid
@@ -55,9 +55,9 @@ Ext.extend(ModFormDataManager.page.Layout,MODx.Component,{
             }
             ,listeners: {
                 'success':{fn:function(r) {
-					var nfid = r.object['id'];
+					ModFormDataManager.config.layoutid = r.object['id'];
+					Ext.getCmp('mod-formdatamanager-layoutgrid').refresh();
                     MODx.msg.alert(_('success'),_('formdatamanager_layout_saved'));
-					ModFormDataManager.config.layoutid = nfid;			
                 },scope:this}
             }
         });
@@ -85,8 +85,28 @@ Ext.extend(ModFormDataManager.page.Layout,MODx.Component,{
         });
     }
     ,prepareLayout: function() {
-        var ld = {};
-		ld.data = Ext.getCmp('mod-formdatamanager-layoutgrid').encode();
+		
+		var ld = {};
+		
+		// remove any dummyfields which are set to not included, rename DF labels to numerical sequence
+		
+		var s = Ext.getCmp('mod-formdatamanager-layoutgrid').getStore();
+		var sl = s.getCount();
+		var rl = "", dfcnt = 0, inc = 0;
+		var wd = [];
+		for (var i = 0; i < sl; i++) {
+			var rl = s.data.items[i].data.label;
+			if (rl.substr(0,10) == "DummyField") {
+				if (s.data.items[i].data.include == 0) continue;
+				dfcnt = dfcnt+1;
+				s.data.items[i].data.label = "DummyField"+dfcnt;
+			}
+			wd.push(s.data.items[i].data);
+		}
+		
+		var wd = Ext.util.JSON.encode(wd);
+		//var wd = Ext.getCmp('mod-formdatamanager-layoutgrid').encode();
+		ld.data = wd;
 		
         return Ext.util.JSON.encode(ld);
     }

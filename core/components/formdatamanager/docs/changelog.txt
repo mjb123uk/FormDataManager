@@ -1,6 +1,10 @@
-FormDataManager-1.2.2.pl
+FormDataManager-1.2.3.pl
 ========================
+Added facility to include dummy columns in export format, these can have user defined column names and default values.
+Removed paging on layout definition to prevent loss of changes when paging required.
 
+1.2.2.pl
+--------
 Added feature to set the layout field type (text,textarea,date,number).
 Changed view data grid to enable horizontal scrolling and column changes to make viewing data easier.
 Column widths in view data grid sized according to field type.

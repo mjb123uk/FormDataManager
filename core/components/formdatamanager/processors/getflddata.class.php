@@ -146,7 +146,9 @@ class FormDataManagerGetFldDataProcessor extends modProcessor
 					foreach($frmflds as $frmfld) {
 						$fd = $frmfld->toArray();
 						$settings = $this->modx->fromJSON($fd['settings'], false);
-						$data[] = array('id' => $fd['id'],'order' => $ord,'label' => $settings->label,'type' => $fd['type'],'include' => 1,'coltitle' => $settings->label,'default' => '');
+						$type = $fd['type'];
+						if ($type == "select") $type = "text";
+						$data[] = array('id' => $fd['id'],'order' => $ord,'label' => $settings->label,'type' => $type,'include' => 1,'coltitle' => $settings->label,'default' => '');
 						$ord++;
 					}
 				}

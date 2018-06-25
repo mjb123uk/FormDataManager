@@ -9,7 +9,7 @@ ModFormDataManager.layoutgrid = function(config) {
 			,formname: ModFormDataManager.config.formname
 		}
 		,fields:['id','order','label','type','include','coltitle','default']
-		,paging:true
+		,paging:false
 		,primaryKey: 'order'
 		,remoteSort:false
 		,ddGroup:'ddGrid'+config.formid
@@ -57,20 +57,28 @@ ModFormDataManager.layoutgrid = function(config) {
 		}]
 		,tbar : new Ext.Toolbar({
 			id : 'fdmlgtbar'
-			,hidden : true
+			//,hidden : true
 			,items: [{
+				text: _('formdatamanager_dummyfield_add')
+				,cls: 'primary-button'
+				,handler: this.newDummyFieldAdd
+				,scope: this
+			}, {
 				xtype: 'tbtext'
 				,text: _('formdatamanager_tables.exfldname')+':'
 				,style: 'font-size: 12px'
+				,hidden : true
 			}, {
 				xtype: 'modx-combo-fields'
-				,name: 'exfldname'
+				,id: 'exfldname'
 				,anchor: '100%'
 				,allowBlank: true
+				,hidden : true
 			}]
 		})
 	});
 	ModFormDataManager.layoutgrid.superclass.constructor.call(this,config);
+	this.fdmlgRecord = Ext.data.Record.create(config.fields);
 	
 	// Setup Toolbar & Reorder by Drag and Drop
 	this.on('render', this.setUp, this);
@@ -88,7 +96,9 @@ Ext.extend(ModFormDataManager.layoutgrid, MODx.grid.Grid, {
 		// enable top tool bar if 'Custom Table'
 		if (ModFormDataManager.config.hometab == "Table") {
 			var tb = grid.getTopToolbar();
-			tb.show();
+			//tb.show();
+			tb.items.items[1].show();
+			tb.items.items[2].show();
 		}
 		this.dragAndDrop(grid);
 	}
@@ -135,6 +145,59 @@ Ext.extend(ModFormDataManager.layoutgrid, MODx.grid.Grid, {
     		}
     	});
     }
+	,newDummyFieldAdd: function(btn, e) {
+		var window = new MODx.window.CreateDummyField({
+            listeners: {			
+				'success': { fn:function(r) {
+                    var s = this.getStore();
+					var sdi = s.data.items;
+					var dflbl = r.dfcolumntitle;
+					dflbl = dflbl.replace(" ","",dflbl);
+					// check label unique
+					var w="", ww="", cl="", ct="", ok=false, x=0, maxid=0, maxdf = 0;
+					// set maxdf - next DummyField label no.
+					for (var i=0; i<sdi.length; i++) {					
+						cl = sdi[i].data.label;
+						if (cl.substr(0,10) == "DummyField") {
+							xx = parseInt(cl.substr(10));
+							if (xx > maxdf) maxdf = xx;
+						}
+					}
+					for (var z=0; z<99; z++) {
+						w = dflbl;
+						ok = true;
+						for (var i=0; i<sdi.length; i++) {
+							ww = z.toString();
+							if (z>0) w = dflbl+ww;
+							x = sdi[i].data.id;
+							if (x > maxid) maxid = x;
+							ct = sdi[i].data.coltitle;
+							if (w == ct) {
+								ok = false;
+								break;
+							}
+						}
+						if (ok) break;
+					}
+					if (ww == 0) ww = "";
+					maxid = maxid+1;
+					maxdf = maxdf+1;
+					
+                    var rec = new this.fdmlgRecord({
+                        id: maxid
+						,order: sdi.length
+						,label: "DummyField"+maxdf
+                        ,type: r.dftype
+						,include: true
+						,coltitle: w
+                        ,default: r.dfdefault
+                    });
+                    s.add(rec);
+                },scope:this }
+			}
+        });
+        window.show(e.target);
+	}
 });
 Ext.reg('mod-formdatamanager-layoutgrid', ModFormDataManager.layoutgrid);
 
@@ -199,3 +262,54 @@ ModFormDataManager.combo.Fields = function(config) {
 };
 Ext.extend(ModFormDataManager.combo.Fields,MODx.combo.ComboBox);
 Ext.reg('modx-combo-fields',ModFormDataManager.combo.Fields);  
+
+/**
+ * Generates the DummyField window.
+ *
+ * @class MODx.window.DummyField
+ * @extends MODx.Window
+ * @param {Object} config An object of options.
+ * @xtype modx-window-formdatamanager-create-field
+ */
+MODx.window.CreateDummyField = function(config) {
+    config = config || {};
+    Ext.applyIf(config,{
+        title: _('formdatamanager_dummyfield_new')
+        ,fields: [
+		{
+            xtype: 'textfield'
+            ,fieldLabel: _('formdatamanager_dummyfield_columntitle')
+            ,name: 'dfcolumntitle'
+            ,anchor: '100%'
+            ,allowBlank: false			
+        }, {
+			xtype: 'modx-combo-fieldtype'
+			,fieldLabel: _('formdatamanager_fldgrid.type')
+			,name: 'dftype'
+			,value: 'text'
+		}, {
+            xtype: 'textfield'
+            ,fieldLabel: _('formdatamanager_fldgrid.default')
+            ,name: 'dfdefault'
+            ,anchor: '100%'		
+        }]
+        ,keys: []
+    });
+    MODx.window.CreateDummyField.superclass.constructor.call(this,config);
+};
+Ext.extend(MODx.window.CreateDummyField,MODx.Window,{
+    submit: function() {
+        var v = this.fp.getForm().getValues();
+		
+        if (this.fp.getForm().isValid()) {
+            if (this.fireEvent('success',v)) {
+                this.fp.getForm().reset();
+                this.hide();
+                return true;
+            }
+        }
+        return false;
+    }
+
+});
+Ext.reg('modx-window-formdatamanager-create-field',MODx.window.CreateDummyField);

@@ -71,6 +71,7 @@ class FormDataManagerViewdataManagerController extends modExtraManagerController
 					}
 				}
 				$lastexportto = $fd['lastexportto'];
+				if (!empty($lastexportto)) $lastexportto = date('Y-m-d H:i:s',strtotime($lastexportto) + 1);
 			}
 		}
 
