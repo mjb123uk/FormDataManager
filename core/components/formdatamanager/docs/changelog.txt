@@ -1,5 +1,33 @@
-FormDataManager-1.2.3.pl
+FormDataManager-1.3.9.pl
 ========================
+
+Able to set formz/formit forms as inactive.
+Add filters to formit & formz grids for active/inactive forms.
+Improved grid processors to correctly count active/inactive when multiple pages.
+
+1.3.8.pl
+--------
+Fixed occurances of popup Windows to reuse rather than create many duplicates.
+Update snippet & model class to a provide ZipArchive option to combine multiple exports into an archive to download.
+
+1.3.1.pl -> 1.3.7.pl
+--------------------
+Fixed all display/export dates to use system date format settings.
+Created a snippet for use by a schedule process (e.g. scheduler or CRON job) to export all forms since last export.
+Autoexport dates set correctly.
+Fixed sort order when using a template.
+Improved date handling.
+Moved all processors to \mgr\ sub-folder.
+
+1.3.0.pl
+--------
+New feature to define export templates i.e. a standard layout for various forms.
+Changed all flat file processors to classes.
+Fixed typo. in home class.
+Changed grid data retrieval processors for pagination.
+
+1.2.3.pl
+--------
 Added facility to include dummy columns in export format, these can have user defined column names and default values.
 Removed paging on layout definition to prevent loss of changes when paging required.
 
@@ -45,8 +73,3 @@ Update last exported date
 
 - First release
 
-
-Todo / Wish List
-----------------
-Add support to export data from other forms or data saved to custom forms.
-Create a class for use by a scheduled process (e.g. scheduler or CRON job) to export all forms since last export.

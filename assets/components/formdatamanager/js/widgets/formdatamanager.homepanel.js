@@ -63,6 +63,18 @@ Ext.extend(ModFormDataManager.HomePanel,MODx.Panel,{
 					,preventRender:true
 					,cls:'main-wrapper'
 				}]
+            });
+			tabs.add({
+				title:_('formdatamanager_home_tab4')
+				,items:[{
+					html:'<p>'+_('formdatamanager_templates_desc')+'</p>'
+					,border:false
+					,bodyCssClass:'panel-desc'
+				}, {
+					xtype:'mod-formdatamanager-templatesgrid'
+					,preventRender:true
+					,cls:'main-wrapper'
+				}]
             });				
 		}
 		// if no forms then show message
@@ -85,12 +97,15 @@ Ext.extend(ModFormDataManager.HomePanel,MODx.Panel,{
 			if (ModFormDataManager.config.hasformz) ht += 1;
 			if (ModFormDataManager.config.hasformit) ht += 1;
 		}
-		
+		if (htn == "Template") {
+			ht += 1;
+			if (ModFormDataManager.config.hasformz) ht += 1;
+			if (ModFormDataManager.config.hasformit) ht += 1;
+		}
 		var docheight = document.body.clientHeight;
 		var gridheight = 140;
 
 		ModFormDataManager.config.gridheight = (docheight-gridheight)-100;
-		
 		tabs.setActiveTab( ht );
     }	
 });

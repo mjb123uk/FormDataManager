@@ -30,7 +30,8 @@ Ext.onReady(function () {
 			,formid: ModFormDataManager.config.formid
 			,formname: ModFormDataManager.config.formname
 			,layoutid: ModFormDataManager.config.layoutid
-			,fldextra: ModFormDataManager.config.fldextra
+			,selectionfield: ModFormDataManager.config.selectionfield
+			,template: ModFormDataManager.config.template
 		}
 		,fields: viewdataFields
 		,root: 'results'
@@ -42,13 +43,21 @@ Ext.onReady(function () {
 	
 	store.load();
 	
-		
+	var paging = new Ext.PagingToolbar({
+        pageSize:10,
+        store: store,
+        displayInfo: true,
+        displayMsg: 'Displaying {0} - {1} of {2}',
+        emptyMsg: "No topics to display"
+    });
+	
 	ModFormDataManager.Grid = Ext.extend(Ext.grid.GridPanel, {
 	    initComponent: function() {
 	        var config = {
 				id:'mod-formdatamanager-viewdatagrid'
 	            ,store: store
 				,cm: viewdataColumnModel
+				,bbar:paging
 	            ,viewConfig: {
 	                //forceFit: true
 	            }

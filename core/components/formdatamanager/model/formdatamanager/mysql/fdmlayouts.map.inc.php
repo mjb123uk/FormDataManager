@@ -4,21 +4,28 @@ $xpdo_meta_map['FdmLayouts']= array (
   'version' => '1.1',
   'table' => 'fdm_layouts',
   'extends' => 'xPDOSimpleObject',
+  'tableMeta' => 
+  array (
+    'engine' => 'MyISAM',
+  ),
   'fields' => 
   array (
     'formtype' => NULL,
     'formid' => NULL,
-	'formname' => NULL,
+    'formname' => NULL,
+    'inactive' => 0,
     'formfld_data' => NULL,
     'formfld_extra' => NULL,
+    'selectionfield' => NULL,
+    'templateid' => 0,
     'createdon' => NULL,
     'createdby' => 0,
     'editedon' => NULL,
     'editedby' => 0,
-	'lastexportfrom' => NULL,
+    'lastexportfrom' => NULL,
     'lastexportto' => NULL,
-    'lastautoexpfrom' => NULL, 
-    'lastautoexpto' => NULL, 
+    'lastautoexpfrom' => NULL,
+    'lastautoexpto' => NULL,
   ),
   'fieldMeta' => 
   array (
@@ -38,13 +45,21 @@ $xpdo_meta_map['FdmLayouts']= array (
       'phptype' => 'integer',
       'null' => false,
     ),
-	'formname' => 
+    'formname' => 
     array (
       'dbtype' => 'varchar',
       'precision' => '100',
       'phptype' => 'string',
       'null' => true,
-      'index' => 'index',
+    ),
+    'inactive' => 
+    array (
+      'dbtype' => 'int',
+      'precision' => '1',
+      'attributes' => 'unsigned',
+      'phptype' => 'integer',
+      'null' => false,
+      'default' => 0,
     ),
     'formfld_data' => 
     array (
@@ -57,6 +72,22 @@ $xpdo_meta_map['FdmLayouts']= array (
       'dbtype' => 'text',
       'phptype' => 'string',
       'null' => true,
+    ),
+    'selectionfield' => 
+    array (
+      'dbtype' => 'varchar',
+      'precision' => '100',
+      'phptype' => 'string',
+      'null' => true,
+    ),
+    'templateid' => 
+    array (
+      'dbtype' => 'int',
+      'precision' => '10',
+      'attributes' => 'unsigned',
+      'phptype' => 'integer',
+      'null' => false,
+      'default' => 0,
     ),
     'createdon' => 
     array (
@@ -135,7 +166,7 @@ $xpdo_meta_map['FdmLayouts']= array (
           'collation' => 'A',
           'null' => false,
         ),
-		'formname' => 
+        'formname' => 
         array (
           'length' => '',
           'collation' => 'A',

@@ -32,7 +32,9 @@ class FormDataManagerViewdataManagerController extends modExtraManagerController
 		$lastexportto = "";
 		$istable = false;
 		$hometab = "FormIt";
-		$fldextra = "";
+		$selectionfield = "";
+		$selectionfield = "";
+		$templateid = 0;
 		
 		$packageName = "formdatamanager";
 		$packagepath = $this->modx->getOption('core_path') . 'components/' . $packageName . '/';
@@ -46,23 +48,27 @@ class FormDataManagerViewdataManagerController extends modExtraManagerController
 			$hometab = "Table";		
 		}
 		if ( ($formid == 'formit') || ($istable) ) {
+			// formid can be formit or table
+			$c->where(array('formtype' => $formid,'formname' => $formname));
 			$formid = '"'.$formid.'"';
-			$c->where(array('formname' => $formname));
 		}
-		else {
-			$c->where(array('formid' => $formid));
+		if (is_numeric($formid)) {
+			$c->where(array('formtype' => 'formz','formid' => $formid));
 			$hometab = "Formz";
 		}
 		$fdmdata = $this->modx->getCollection($classname, $c);
 		if (!empty($fdmdata)) $layout = $fdmdata;
+		unset($c);
+		unset($fdmdata);
+		
 		if (count($layout)) {
 			foreach($layout as $fdmd) {
 				$fd = $fdmd->toArray();
 				if (isset($fd['id'])) $layoutid = $fd['id'];
-				if ($istable) {
-					if (isset($fd['formfld_extra'])) $fldextra = $fd['formfld_extra'];
-					if ( (empty($fldextra)) || ($fldextra == "N/A") ) $fldextra = "";	// always clear in case null
-				}
+				if (isset($fd['selectionfield'])) $selectionfield = $fd['selectionfield'];
+				if (isset($fd['selectionfield'])) $selectionfield = $fd['selectionfield'];
+				if ( (empty($selectionfield)) || ($selectionfield == "N/A") ) $selectionfield = "";	// always clear in case null
+				if (isset($fd['templateid'])) $templateid = $fd['templateid'];
 				$data = json_decode($fd['formfld_data']);
 				foreach($data as $ro) {
 					$rows = json_decode($ro,TRUE);
@@ -75,10 +81,34 @@ class FormDataManagerViewdataManagerController extends modExtraManagerController
 			}
 		}
 
+		if (!empty($templateid)) {
+			// get export date field from template layout record
+			$c = $this->modx->newQuery($classname);
+			$c->select($this->modx->getSelectColumns($classname, $classname));
+			$c->where(array('id' => $templateid));
+			$fdmdata = $this->modx->getCollection($classname, $c);
+			if (!empty($fdmdata)) {
+				foreach($fdmdata as $fdmd) {
+					$fd = $fdmd->toArray();
+					$selectionfield = trim($fd['selectionfield']);
+					$found = 0;
+					foreach ($loflds as $lofld) {
+						if ($lofld['label'] == $selectionfield) {
+							$found = 1;
+							$selectionfield = trim($lofld['mapfield']);
+							break;
+						}
+					}
+				}
+			}
+			unset($c);
+			unset($fdmdata);
+		}
+		
 		$flds = array();
 		$cms = array();
 		
-		if (!istable) {
+		if ( (!$istable) && (empty($templateid)) ) {
 			$flds[] = "'senton'";
 			$flds[] = "'ip_address'";
 			$cms[] = "{ header: 'Created', width: 112, dataIndex: 'senton' }";
@@ -86,8 +116,10 @@ class FormDataManagerViewdataManagerController extends modExtraManagerController
 		}
 		
 		foreach($loflds as $lofld) {
-			if ($lofld['include']) {		// only include if column wanted		
-				$str = preg_replace('/[^A-Za-z0-9_-]/', '', $lofld['label']);
+			if ($lofld['include']) {		// only include if column wanted
+				$w = $lofld['label'];
+				$str = preg_replace('/[^A-Za-z0-9_-]/', '', $w);
+				if ( ($templateid) && (!empty($lofld['mapfield'])) ) $w = $lofld['mapfield'];
 				$flds[] = "'".$str."'";
 				$fw = "200";
 				switch ($lofld['type']) {
@@ -111,8 +143,9 @@ class FormDataManagerViewdataManagerController extends modExtraManagerController
 						if (strtolower($str) == "id") $fw = "80";
 						$fw .= ", align: 'right'";
 						break;						
-				}				
-				$cms[] = "{ header: '".$lofld['coltitle']."', width: $fw, dataIndex: '".$str."' }";
+				}
+				if ($templateid) $cms[] = "{ header: '".$lofld['label']."', width: $fw, dataIndex: '".$str."' }"; 				
+				else $cms[] = "{ header: '".$lofld['coltitle']."', width: $fw, dataIndex: '".$str."' }";
 			}
 		}
 		
@@ -125,7 +158,8 @@ class FormDataManagerViewdataManagerController extends modExtraManagerController
 		ModFormDataManager.config.formid = '.$formid.';
 		ModFormDataManager.config.formname = "'.$formname.'";
 		ModFormDataManager.config.layoutid = '.$layoutid.';
-		ModFormDataManager.config.fldextra = "'.$fldextra.'";			
+		ModFormDataManager.config.selectionfield = "'.$selectionfield.'";
+		ModFormDataManager.config.template = "'.$templateid.'";
 		ModFormDataManager.config.lastexportto = "'.$lastexportto.'";
 		ModFormDataManager.config.hometab = "'.$hometab.'";
 		'.$gs.'

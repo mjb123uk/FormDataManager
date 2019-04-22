@@ -21,11 +21,13 @@ class FormDataManagerGetViewDataProcessor extends modProcessor
 		$formid = $scriptProperties['formid'];
 		$formname = $scriptProperties['formname'];
 		$layoutid = $scriptProperties['layoutid'];
-		$fldextra = $scriptProperties['fldextra'];	
+		$selectionfield = $scriptProperties['selectionfield'];
+		$template = $scriptProperties['template'];			
 		$limit = (isset($scriptProperties['limit'])) ? $scriptProperties['limit'] : 20;
 		$start = (isset($scriptProperties['start'])) ? $scriptProperties['start'] : 0;
 		$limit = $start+$limit;
-		
+		$dateFormat = $this->modx->getOption('manager_date_format') . ' ' . $this->modx->getOption('manager_time_format');
+				
 		$vrows = array();
 		$layout = array();
 		$loflds = array();		
@@ -64,22 +66,29 @@ class FormDataManagerGetViewDataProcessor extends modProcessor
 						$c->where(array('form' => $formname));
 						$count = $this->modx->getCount($classname, $c);
 						$c->limit($limit, $start); 
-						$c->sortby('`id`','DESC');
+						if ( ($template) && (!empty($selectionfield)) ) $c->sortby('`'.$selectionfield.'`','DESC');
+						else $c->sortby('`id`','DESC');
 						$frmrecs = $this->modx->getCollection($classname, $c);
 						$frmflds = array();
 						foreach($frmrecs as $frmr) {
 							$item = $frmr->toArray();
 							$values = $this->modx->fromJSON($item['values'], false);
 							$data = array();
-							$data['senton'] = !empty($item['date']) ? date('d/m/Y H:i:s', $item['date']) : '';
-							$data['ip_address'] = !empty($item['ip']) ? $item['ip'] : '';
+							if (!$template) {
+								$data['senton'] = !empty($item['date']) ? date($dateFormat, $item['date']) : '';
+								$data['ip_address'] = !empty($item['ip']) ? $item['ip'] : '';
+							}
 							foreach($loflds as $lofld) {
 								if ($lofld['include']) {		// only include if column wanted
 									$fl = $lofld['label'];
-									$v = (isset($values->$fl)) ? $values->$fl : "";
+									$str = preg_replace('/[^A-Za-z0-9_-]/', '', $fl);
+									if ( ($template) && (!empty($lofld['mapfield'])) ) $fl = $lofld['mapfield'];
+									$v = null;
+									if ( ($template) && ($fl == "date") && (!empty($item['date'])) ) $v = date($dateFormat, $item['date']);
+									if ( ($template) && ($fl == "ip") && (!empty($item['ip'])) ) $v = $item['ip'];
+									if (is_null($v)) $v = (isset($values->$fl)) ? $values->$fl : "";
 									if (is_array($v)) $v = implode('/', $v);
 									if ( (empty($v)) && (!empty($lofld['default'])) ) $v = $lofld['default'];
-									$str = preg_replace('/[^A-Za-z0-9_-]/', '', $fl);
 									$data[$str] = $v;
 								}
 							}
@@ -89,8 +98,8 @@ class FormDataManagerGetViewDataProcessor extends modProcessor
 					break;
 				case "table":
 					$q = "SELECT * FROM ".$formname;
-					if (!empty($fldextra)) {
-						$q .= ' ORDER BY `'.$fldextra.'`';
+					if (!empty($selectionfield)) {
+						$q .= ' ORDER BY `'.$selectionfield.'`';
 					}
 					$result = $this->modx->query($q);
 					if (is_object($result)) {
@@ -107,11 +116,13 @@ class FormDataManagerGetViewDataProcessor extends modProcessor
 						foreach($loflds as $lofld) {
 							if ($lofld['include']) {		// only include if column wanted
 								$fl = $lofld['label'];
+								$str = preg_replace('/[^A-Za-z0-9_-]/', '', $fl);
+								if ( ($template) && (!empty($lofld['mapfield'])) ) $fl = $lofld['mapfield'];
 								$v = (isset($values[$fl])) ? $values[$fl] : "";
 								if (is_array($v)) $v = implode('/', $v);
 								if ( (empty($v)) && (!empty($lofld['default'])) ) $v = $lofld['default'];
-								$v = $this->formatfld($v,$lofld['type']);
-								$str = preg_replace('/[^A-Za-z0-9_-]/', '', $fl);
+								$v = $this->formatfld($v,$lofld['type'],$dateFormat);
+
 								$data[$str] = $v;
 							}
 						}
@@ -131,8 +142,9 @@ class FormDataManagerGetViewDataProcessor extends modProcessor
 						$c->select($this->modx->getSelectColumns($classname, $classname));
 						$c->where(array('form_id' => $formid));
 						$count = $this->modx->getCount($classname, $c);
-						$c->limit($limit, $start); 
-						$c->sortby('`senton`','ASC');
+						$c->limit($limit, $start);
+						if ( ($template) && (!empty($selectionfield)) ) $c->sortby('`'.$selectionfield.'`','DESC');						
+						$c->sortby('`senton`','DESC');
 						$frms = $this->modx->getCollection($classname, $c);
 						foreach ($frms as $itemobj) {
 							$item = $itemobj->toArray();
@@ -141,23 +153,35 @@ class FormDataManagerGetViewDataProcessor extends modProcessor
 							$fieldsData = $this->modx->getCollection('fmzFormsDataFields', array('data_id' => $item['id']));
 
 							$data = array();
-							$data['senton'] = !empty($item['senton']) ? date('d/m/Y H:i:s', strtotime($item['senton'])) : '';
-							$data['ip_address'] = !empty($formData['ip_address']) ? $formData['ip_address'] : '';
+							if (!$template) {
+								$data['senton'] = !empty($item['senton']) ? date($dateFormat, strtotime($item['senton'])) : '';
+								$data['ip_address'] = !empty($formData['ip_address']) ? $formData['ip_address'] : '';
+							}
 							foreach($loflds as $lofld) {
 								if ($lofld['include']) {		// only include if column wanted
 									$fl = $lofld['label'];
+									$str = preg_replace('/[^A-Za-z0-9_-]/', '', $fl);									
+									if ( ($template) && (!empty($lofld['mapfield'])) ) $fl = $lofld['mapfield'];
 									$v = "";
-									foreach ($fieldsData as $fd) {
-										$values = unserialize($fd->value);
-										if (is_array($values)) $values = implode('/', $values);
-										$label = $fd->label;
-										if ($label == $fl) {
-											$v = $values;
-											break;
+									if ( ($template) && ($fl == "senton") && (!empty($item['senton'])) ) {
+										$v = date($dateFormat, strtotime($item['senton']));
+									}
+									else if ( ($template) && ($fl == "ip_address") && (!empty($formData['ip_address'])) ) {
+										$v = $formData['ip_address'];				
+									}	
+									else {
+										foreach ($fieldsData as $fd) {
+											$label = $fd->label;
+											if ($label == $fl) {			
+												$values = unserialize($fd->value);
+												if (is_array($values)) $values = implode('/', $values);										
+												$v = $values;
+												break;
+											}
 										}
 									}
 									if ( (empty($v)) && (!empty($lofld['default'])) ) $v = $lofld['default'];
-									$str = preg_replace('/[^A-Za-z0-9_-]/', '', $fl);
+
 									$data[$str] = $v;
 								}
 							}	
@@ -169,12 +193,12 @@ class FormDataManagerGetViewDataProcessor extends modProcessor
 		return $this->outputArray($vrows,$count);
     }
 	
-	private function formatfld($val,$type) {
+	private function formatfld($val,$type,$dateFormat) {
 		if ($type == "date") {
 			// test if string or internal date/time stamp
 			if ($this->isValidTimeStamp($val)) {
 				// convert to date string
-				$val = date('Y-m-d H:i:s', $val);
+				$val = date($dateFormat, $val);
 			}
 		}
 		return $val;

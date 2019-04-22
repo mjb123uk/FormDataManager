@@ -2,13 +2,17 @@ ModFormDataManager.formzgrid = function(config) {
 	config=config || {};
 	Ext.applyIf(config,{
 		id:'mod-formdatamanager-formzgrid'
-			,url: ModFormDataManager.config.connector_url
+		,url: ModFormDataManager.config.connector_url
 		,baseParams:{
 			action: 'getformzlist'
+			,activeFilter: 'Active'
 		}
-		,fields:['id','name','editedon','has_layout','lastexport','has_submission','submissions']
+		,fields:['id','type','name','inactive','editedon','has_layout','layoutid','has_tpl','lastexport','selectionfield','templateid','has_submission','submissions']
 		,paging:true
 		,remoteSort:true
+		,autosave:true
+		,save_action: "layouts/gridupdate"
+		,preventSaveRefresh: 0		
 		,columns:[{
 			header:_('id')
 			,dataIndex:'id'
@@ -19,9 +23,10 @@ ModFormDataManager.formzgrid = function(config) {
 			,width:80
 			,tooltip:_('formdatamanager_col1_qtip')
 		}, {
-			header:_('formdatamanager_form.editedon')
-			,dataIndex:'editedon'
-			,width:40
+			header:_('formdatamanager_form.inactive')
+			,dataIndex:'inactive'
+			,width:30
+			,editor: { xtype: 'modx-combo-boolean', renderer: 'boolean' }
 		}, {
 			header:_('formdatamanager_form.submissions')
 			,dataIndex:'submissions'
@@ -32,11 +37,16 @@ ModFormDataManager.formzgrid = function(config) {
 			,dataIndex:'has_layout'
 			,width:30
 		}, {
+			header:_('formdatamanager_form.has_tpl')
+			,dataIndex:'has_tpl'
+			,width:30
+		}, {
 			header:_('formdatamanager_form.lastexport')
 			,dataIndex:'lastexport'
 			,width:50			
 		}, {
             header: '&#160;'
+			,width:100
             ,renderer: function (v, md, rec) {
                 var btns = '';
                 var model = rec.data;
@@ -48,7 +58,7 @@ ModFormDataManager.formzgrid = function(config) {
                         ,className: 'deflayout'
                     }]
                 });
-				if (model.has_submission) {
+				if ( (model.has_layout == 'Yes') && (model.has_submission) ) {
                     btns += ModFormDataManager.grid.btnRenderer({
                         items: [{
                             id: 'listexport-' + rec.id
@@ -58,6 +68,15 @@ ModFormDataManager.formzgrid = function(config) {
                     });
                 }
                 return btns;
+            }
+        }]
+		,tbar: [{
+			xtype: 'modx-combo-activefilter'
+            ,name: 'formzactivefilter'
+ 			,value: 'Active'
+            ,width: 200
+            ,listeners: {
+                'select': {fn:this.filterActiveFilter,scope:this}
             }
         }]
 	});
@@ -86,12 +105,46 @@ Ext.extend(ModFormDataManager.formzgrid,MODx.grid.Grid,{
 	,defLayout:function(btn,e) {
 		if (!this.menu.record || !this.menu.record.id) return false;
 		var r = this.menu.record;
-		MODx.loadPage('layout','namespace=formdatamanager&id='+r.id+'&fnm='+r.name);
+		var r = this.menu.record;
+		if (r.templateid > 0) {
+			MODx.loadPage('maptemplate','namespace=formdatamanager&id='+r.id+'&fnm='+r.name+'&tpl='+r.templateid);
+			return;
+		}
+		else {
+			if (r.has_layout == "Yes") {
+				MODx.loadPage('layout','namespace=formdatamanager&id='+r.id+'&fnm='+r.name);
+				return;
+			}
+		}
+		ModFormDataManager.config.rid = r.id;
+		ModFormDataManager.config.rname = r.name;
+		if (!window.fdmTemplateWindow) {
+			fdmTemplateWindow = new MODx.window.SelectTemplate({
+				listeners: {
+					'success': { fn: function(r) { this.defLayoutOrTemplate(r); }, scope: this }
+				}
+			});
+		}
+		else {
+			window.fdmTemplateWindow.fp.getForm().reset();
+		}
+        window.fdmTemplateWindow.show(e.target);		
 	}
+	,defLayoutOrTemplate:function(r) {
+		if (typeof(r.tpname) == "undefined") MODx.loadPage('layout','namespace=formdatamanager&id='+ModFormDataManager.config.rid+'&fnm='+ModFormDataManager.config.rname);
+		else MODx.loadPage('maptemplate','namespace=formdatamanager&id='+ModFormDataManager.config.rid+'&fnm='+ModFormDataManager.config.rname+'&tpn='+r.tpname);
+		return;
+	}
+    ,filterActiveFilter: function(cb,nv,ov) {
+        this.getStore().baseParams.activeFilter = Ext.isEmpty(nv) || Ext.isObject(nv) ? cb.getValue() : nv;
+        this.getBottomToolbar().changePage(1);
+        return true;
+    }	
 	,viewData:function(btn,e) {
 		if (!this.menu.record || !this.menu.record.id) return false;
 		var r = this.menu.record;
 		MODx.loadPage('viewdata','namespace=formdatamanager&id='+r.id+'&fnm='+r.name+'&gh='+ModFormDataManager.config.gridheight);
+		return;
 	}
 	,onClick: function(e){
         var t = e.getTarget();

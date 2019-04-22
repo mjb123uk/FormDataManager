@@ -20,7 +20,7 @@ ModFormDataManager.LayoutPanel=function(config) {
 			,items:[{
 				title:_('formdatamanager_layout_tab1')
 				,items:[{
-					html:'<p>'+_('formdatamanager_layout_desc')+ModFormDataManager.config.formname+']</p>'
+					html:'<p>'+( (ModFormDataManager.config.formid == "template" ) ? _('formdatamanager_layout_templatedesc') : _('formdatamanager_layout_desc') )+ModFormDataManager.config.formname+']</p>'
 					,border:false
 					,bodyCssClass:'panel-desc'
 				}, {

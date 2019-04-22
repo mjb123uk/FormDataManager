@@ -9,7 +9,7 @@ $modx->formdatamanager = new formdatamanager($modx);
 
 $modx->lexicon->load('formdatamanager:default');
 
-$processor_path = $modx->getOption('formdatamanager.core_path', null, $modx->getOption('core_path').'components/formdatamanager/').'processors/';
+$processor_path = $modx->getOption('formdatamanager.core_path', null, $modx->getOption('core_path').'components/formdatamanager/').'processors/mgr/';
 $modx->lexicon->load('formdatamanager:default');
 $modx->request->handleRequest(array(
     'processors_path' => $processor_path, 

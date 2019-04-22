@@ -29,6 +29,7 @@ class FormDataManager
     public function __construct(modX &$modx, array $config = array())
     {
         $this->modx =& $modx;
+		$this->namespace = $this->modx->getOption('namespace', $options, $this->namespace);
 
         $basePath = $this->modx->getOption('formdatamanager.core_path', $config, $this->modx->getOption('core_path') . 'components/formdatamanager/');
         $assetsUrl = $this->modx->getOption('formdatamanager.assets_url', $config, $this->modx->getOption('assets_url') . 'components/formdatamanager/');
@@ -36,6 +37,8 @@ class FormDataManager
         $managerUrl = $this->modx->getOption('manager_url', $config, $this->modx->getOption('base_url') . 'manager/');
 
         $this->config = array_merge(array(
+			'namespace' => $this->namespace,
+            'version' => $this->version,
             'basePath' => $basePath,
             'corePath' => $basePath,
             'modelPath' => $basePath . 'model/',
@@ -52,5 +55,73 @@ class FormDataManager
         $this->modx->addPackage('formdatamanager', $this->config['modelPath']);
 
     }
+	
+	public function CreateZip() {
+		
+		//$this->modx->log( modX::LOG_LEVEL_ERROR, 'Starting fdmExport Zip');
+		$p = $this->modx->getOption('core_path', null, MODX_CORE_PATH).'export/FormDataManager/';
+		$stub = date('Ymd',time());
+		$d = "";
+		$dir = opendir($p);
+		while ($file = readdir($dir))
+		{
+			if ($file == '.' || $file == '..') continue;
+			if ( (is_dir($p.$file)) && (substr($file,0,8) == $stub) ) {
+				$d = $file;
+				break;
+			}
+		}
+		if (!empty($d)) {
+			$z = $this->_createzip($p,$d);
+			// remove folder if succesful zip
+			if ($z > 0) {
+				$fp = $p.$d;
+				array_map('unlink', glob("$fp/*.*"));
+				rmdir($fp);
+			}
+		}
+	}
+		
+	private function _createzip($path,$dir) {
+		// Get real path for our folder
+		$rootPath = realpath($path.$dir);
+
+		// Initialize archive object
+		$zip = new ZipArchive();
+		$zip->open($path.$dir.'.zip', ZipArchive::CREATE | ZipArchive::OVERWRITE);
+
+		// Create recursive directory iterator
+		/** @var SplFileInfo[] $files */
+		$files = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator($rootPath),
+			RecursiveIteratorIterator::LEAVES_ONLY
+		);
+		
+		$zi = 0;
+		foreach ($files as $name => $file)
+		{
+			// Skip directories (they would be added automatically)
+			if (!$file->isDir())
+			{
+				// Get real and relative path for current file
+				$filePath = $file->getRealPath();
+				$relativePath = substr($filePath, strlen($rootPath) + 1);
+
+				// Add current file to archive
+				$zip->addFile($filePath, $relativePath);
+				$zi++;
+			}
+		}
+
+		// Zip archive will be created only after closing object
+		$zip->close();
+		return $zi;
+	}
+	
+	public function CreateRar() {
+		
+		//$this->modx->log( modX::LOG_LEVEL_ERROR, 'Starting fdmExport Rar');
+		
+	}
 }
 

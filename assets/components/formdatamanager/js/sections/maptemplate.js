@@ -1,13 +1,13 @@
 Ext.onReady(function(){
-	MODx.load({xtype:'mod-formdatamanager-page-layout'});
+	MODx.load({xtype:'mod-formdatamanager-page-maptemplate'});
 });
 
-ModFormDataManager.page.Layout=function(config) {
+ModFormDataManager.page.MapTemplate=function(config) {
 	config = config || {};
 	Ext.applyIf(config,{
-		formpanel:'mod-formdatamanager-layoutpanel'
+		formpanel:'mod-formdatamanager-maptemplatepanel'
 		,components:[{
-			xtype:'mod-formdatamanager-layoutpanel'
+			xtype:'mod-formdatamanager-maptemplatepanel'
 			,renderTo:'mod-extra-formdatamanager'}
 		]
 		,buttons:[{
@@ -23,22 +23,21 @@ ModFormDataManager.page.Layout=function(config) {
 			,id:'formdatamanager-save'
 			,handler: this.saveLayout
 			,scope: this
-			,hidden: (ModFormDataManager.config.formid == "template" ) ? true : false
 		},{
 			text:_('formdatamanager_remove')
 			,id:'formdatamanager-remove'
 			,handler: this.removeLayout
 			,scope: this
-			,hidden: (ModFormDataManager.config.formid == "template" ) ? true : false
 		}]
 	});
-	ModFormDataManager.page.Layout.superclass.constructor.call(this,config);
+	ModFormDataManager.page.MapTemplate.superclass.constructor.call(this,config);
 };
-Ext.extend(ModFormDataManager.page.Layout,MODx.Component,{
+Ext.extend(ModFormDataManager.page.MapTemplate,MODx.Component,{
     windows: {}
     ,saveLayout: function(btn,e) {
         var data = this.prepareLayout();
-		var selectionfield = Ext.getCmp("selFldName").getValue();
+		var selfld = ModFormDataManager.config.selectionfield;
+		var tplid = ModFormDataManager.config.template;
 		// test if new or update
 		var action = 'layouts/update';
 		var wid = ModFormDataManager.config.layoutid
@@ -54,13 +53,13 @@ Ext.extend(ModFormDataManager.page.Layout,MODx.Component,{
                 ,id: wid
 				,formname: ModFormDataManager.config.formname
                 ,data: data
-				,selectionfield: selectionfield
-				,templateid: 0
+				,selectionfield: selfld
+				,templateid: tplid
             }
             ,listeners: {
                 'success':{fn:function(r) {
 					ModFormDataManager.config.layoutid = r.object['id'];
-					Ext.getCmp('mod-formdatamanager-layoutgrid').refresh();
+					Ext.getCmp('mod-formdatamanager-maptemplategrid').refresh();
                     MODx.msg.alert(_('success'),_('formdatamanager_layout_saved'));
                 },scope:this}
             }
@@ -82,7 +81,7 @@ Ext.extend(ModFormDataManager.page.Layout,MODx.Component,{
             ,params: {
                 action: action
                 ,id: ModFormDataManager.config.layoutid
-				,template: false
+				,template: true
             }
             ,listeners: {
                 'success':{fn:function(r) {
@@ -96,26 +95,24 @@ Ext.extend(ModFormDataManager.page.Layout,MODx.Component,{
 		
 		var ld = {};
 		
-		// remove any dummyfields which are set to not included, rename DF labels to numerical sequence
+		// remove any dummyfields which are set to not included
 		
-		var s = Ext.getCmp('mod-formdatamanager-layoutgrid').getStore();
+		var s = Ext.getCmp('mod-formdatamanager-maptemplategrid').getStore();
 		var sl = s.getCount();
-		var rl = "", dfcnt = 0, inc = 0;
+		var rtpl = "";
 		var wd = [];
 		for (var i = 0; i < sl; i++) {
-			var rl = s.data.items[i].data.label;
-			if (rl.substr(0,10) == "DummyField") {
-				if (s.data.items[i].data.include == 0) continue;
-				dfcnt = dfcnt+1;
-				s.data.items[i].data.label = "DummyField"+dfcnt;
-			}
+			var rtpl = s.data.items[i].data.tplfield;
+			// if not a template field (i.e. Added dummy field) and include NO then skip
+			if ( (!rtpl) && (s.data.items[i].data.include == 0) ) continue;
 			wd.push(s.data.items[i].data);
 		}
 		
 		var wd = Ext.util.JSON.encode(wd);
+		//var wd = Ext.getCmp('mod-formdatamanager-maptemplategrid').encode();
 		ld.data = wd;
 		
         return Ext.util.JSON.encode(ld);
     }
 });
-Ext.reg('mod-formdatamanager-page-layout',ModFormDataManager.page.Layout);
+Ext.reg('mod-formdatamanager-page-maptemplate',ModFormDataManager.page.MapTemplate);

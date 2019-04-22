@@ -3,9 +3,12 @@
 	<object class="FdmLayouts" table="fdm_layouts" extends="xPDOSimpleObject">
 		<field key="formtype" dbtype="varchar" precision="20" phptype="string" null="false" index="index" />
 		<field key="formid" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" />
-		<field key="formname" dbtype="varchar" precision="100" phptype="string" null="true" index="index" />
+		<field key="formname" dbtype="varchar" precision="100" phptype="string" null="true" />
+		<field key="inactive" dbtype="int" precision="1" attributes="unsigned" phptype="integer" null="false" default="0" />
 		<field key="formfld_data" dbtype="text" phptype="string" null="true" />
 		<field key="formfld_extra" dbtype="text" phptype="string" null="true" />
+		<field key="selectionfield" dbtype="varchar" precision="100" phptype="string" null="true" />
+		<field key="templateid" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" default="0" />
 		<field key="createdon" dbtype="datetime" phptype="datetime" null="true" />
 		<field key="createdby" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" default="0" />
 		<field key="editedon" dbtype="datetime" phptype="datetime" null="true" />
@@ -18,7 +21,7 @@
 		<index alias="formtype" name="formtype" primary="false" unique="false" type="BTREE" >
 			<column key="formtype" length="" collation="A" null="false" />
 			<column key="formid" length="" collation="A" null="false" />
-			<column key="formname" length="" collation="A" null="false" />
+			<column key="formname" length="" collation="A" null="true" />
 		</index>
 	</object>
 </model>

@@ -6,7 +6,7 @@ ModFormDataManager.tablesgrid = function(config) {
 		,baseParams:{
 			action: 'gettableslist'
 		}
-		,fields:['id','name','editedon','has_layout','lastexport','has_submission','submissions']
+		,fields:['id','name','editedon','has_layout','has_tpl','lastexport','templateid','has_submission','submissions']
 		,paging:true
 		,remoteSort:true
 		,columns:[{
@@ -34,11 +34,16 @@ ModFormDataManager.tablesgrid = function(config) {
 			,dataIndex:'has_layout'
 			,width:30
 		}, {
+			header:_('formdatamanager_form.has_tpl')
+			,dataIndex:'has_tpl'
+			,width:30
+		}, {
 			header:_('formdatamanager_form.lastexport')
 			,dataIndex:'lastexport'
 			,width:50			
 		}, {
             header: '&#160;'
+			,width:100
             ,renderer: function (v, md, rec) {
                 var btns = '';
                 var model = rec.data;
@@ -59,7 +64,7 @@ ModFormDataManager.tablesgrid = function(config) {
                         ,className: 'deflayout'
                     }]
                 });
-				if (model.has_submission) {
+				if ( (model.has_layout == 'Yes') && (model.has_submission) ) {
                     btns += ModFormDataManager.grid.btnRenderer({
                         items: [{
                             id: 'listexport-' + rec.id
@@ -107,14 +112,42 @@ Ext.extend(ModFormDataManager.tablesgrid,MODx.grid.Grid,{
 		this.addContextMenuItem(m);
 	}
 	,defLayout:function(btn,e) {
-		if (!this.menu.record || !this.menu.record.name) return false;
+		if (!this.menu.record || !this.menu.record.id) return false;
 		var r = this.menu.record;
-		MODx.loadPage('layout','namespace=formdatamanager&id=table&fnm='+r.name);
+		if (r.templateid > 0) {
+			MODx.loadPage('maptemplate','namespace=formdatamanager&id=table&fnm='+r.name+'&tpl='+r.templateid);
+			return;
+		}
+		else {
+			if (r.has_layout == "Yes") {
+				MODx.loadPage('layout','namespace=formdatamanager&id=table&fnm='+r.name);
+				return;
+			}
+		}
+		ModFormDataManager.config.rid = r.id;
+		ModFormDataManager.config.rname = r.name;
+		if (!window.fdmTemplateWindow) {
+			fdmTemplateWindow = new MODx.window.SelectTemplate({
+				listeners: {
+					'success': { fn: function(r) { this.defLayoutOrTemplate(r); }, scope: this }
+				}
+			});
+		}
+		else {
+			window.fdmTemplateWindow.fp.getForm().reset();
+		}
+        window.fdmTemplateWindow.show(e.target);		
 	}
+	,defLayoutOrTemplate:function(r) {
+		if (typeof(r.tpname) == "undefined") MODx.loadPage('layout','namespace=formdatamanager&id=table&fnm='+ModFormDataManager.config.rname);
+		else MODx.loadPage('maptemplate','namespace=formdatamanager&id=table&fnm='+ModFormDataManager.config.rname+'&tpn='+r.tpname);
+		return;
+	}	
 	,viewData:function(btn,e) {
 		if (!this.menu.record || !this.menu.record.name) return false;
 		var r = this.menu.record;
 		MODx.loadPage('viewdata','namespace=formdatamanager&id=table&fnm='+r.name+'&gh='+ModFormDataManager.config.gridheight);
+		return;
 	}
 	,newFormTable:function(btn, e) {
 		var ctbls="";
@@ -124,15 +157,20 @@ Ext.extend(ModFormDataManager.tablesgrid,MODx.grid.Grid,{
 			ctbls = ctbls+item.data.name;                 
 		});
 		ModFormDataManager.config.tbldata = ctbls;
-        var window = new MODx.window.CreateFormTable({
-            listeners: {
-                success: {
-                    fn: this.refresh
-                    ,scope: this
-                }
-            }
-        });
-        window.show(e.target);
+		if (!window.fdmCreateFormWindow) {
+			fdmCreateFormWindow = new MODx.window.CreateFormTable({
+				listeners: {
+					success: {
+						fn: this.refresh
+						,scope: this
+					}
+				}
+			});
+		}
+		else {
+			window.fdmCreateFormWindow.fp.getForm().reset();
+		}
+        window.fdmCreateFormWindow.show(e.target);
     }
 	,removeTable:function(btn,e) {
 		if (!this.menu.record || !this.menu.record.name) return false;
@@ -148,7 +186,8 @@ Ext.extend(ModFormDataManager.tablesgrid,MODx.grid.Grid,{
             ,listeners: {
                 'success':{fn:function(r) {
                     MODx.msg.alert(_('success'),_('formdatamanager_table_removed'));
-					location.reload(true);
+					//location.reload(true);
+					MODx.loadPage('home','namespace=formdatamanager&tn=Table');
                 },scope:this}
             }
         });

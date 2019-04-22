@@ -69,7 +69,7 @@
     transition: all 0.3s;
 }
 
-.controlBtn.listexport {
+.controlBtn.listexport, .controlBtn.viewlayout {
     border: 1px solid #92c9e6;
     -moz-background-clip: padding;
     -webkit-background-clip: padding-box;

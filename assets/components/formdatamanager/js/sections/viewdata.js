@@ -16,6 +16,7 @@ ModFormDataManager.page.Viewdata=function(config) {
 			,cls:'primary-button'
 			,handler:function(){
 				MODx.loadPage('home','namespace=formdatamanager&tn='+ModFormDataManager.config.hometab);
+				return;
 			}
 		},{
 			text:_('formdatamanager_export')
@@ -94,7 +95,8 @@ ModFormDataManager.window.ExportData = function (config) {
                         ,formid: config.formid
 						,formname: config.formname
 						,layoutid: config.layoutid
-						,fldextra: ModFormDataManager.config.fldextra
+						,selectionfield: ModFormDataManager.config.selectionfield
+						,template: ModFormDataManager.config.template
 						,lastexportto: config.lastexportto
                         ,startDate: Ext.getCmp('startDate').getValue()
                         ,endDate: Ext.getCmp('endDate').getValue()
@@ -173,7 +175,7 @@ Ext.extend(ModFormDataManager.window.ExportData, MODx.Window, {
 	setup: function (w) {
 		if (ModFormDataManager.config.hometab == "Table") {
 			// check if export fields defined
-			if (ModFormDataManager.config.fldextra == "") {
+			if (ModFormDataManager.config.selectionfield == "") {
 				// hide export date range	
 				var ewo = Ext.getCmp("fdmExOpts");
 				ewo.hide();

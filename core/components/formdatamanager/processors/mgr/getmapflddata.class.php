@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Class FormDataManagerGetFldDataProcessor
+ * Class FormDataManagerGetMapFldDataProcessor
  *
  * For FormDataManager Layout Grid.
  */
  
-class FormDataManagerGetFldDataProcessor extends modProcessor
+class FormDataManagerGetMapFldDataProcessor extends modProcessor
 {
 
     public function initialize() {
@@ -21,29 +21,34 @@ class FormDataManagerGetFldDataProcessor extends modProcessor
 		$formid = $scriptProperties['formid'];
 		$formname = $scriptProperties['formname'];
 		$limit = (isset($scriptProperties['limit'])) ? $scriptProperties['limit'] : 20;
+		if ($limit == 0) $limit = 999;
 		$start = (isset($scriptProperties['start'])) ? $scriptProperties['start'] : 0;
 		$limit = $start+$limit;
+
+		$tpl = (isset($scriptProperties['tpl'])) ? $scriptProperties['tpl'] : 0;
+		$newtpl = (isset($scriptProperties['newtpl'])) ? $scriptProperties['newtpl'] : false;
 		
 		$data = array();
+		$tpldata = array();
 		$layout = array();
+		$count = 0;
 		
 		$classname = 'FdmLayouts';
+
 		$c = $this->modx->newQuery($classname);
 		$c->select($this->modx->getSelectColumns($classname, $classname));
 		// note formid = formid or formname
 		switch ($formid) {
 			case "formit":
-				$c->where(array('formname' => $formname));
-				break;
 			case "table":
 				// custom table
-				$c->where(array('formname' => $formname));
-				break;			
+				$c->where(array('formtype' => $formid,'formname' => $formname));
+				break;
 			default:
 				// formz
-				$c->where(array('formid' => $formid));
+				$c->where(array('formtype' => 'formz','formid' => $formid));
 		}
-		$count = $this->modx->getCount($classname, $c);
+		$fcount = $this->modx->getCount($classname, $c);
 		$fdmdata = $this->modx->getCollection($classname, $c);
 		if (!empty($fdmdata)) $layout = $fdmdata;
 
@@ -51,17 +56,18 @@ class FormDataManagerGetFldDataProcessor extends modProcessor
 			// Format for grid
 			foreach($layout as $fdmd) {
 				$fd = $fdmd->toArray();
-				if ( ($fd["formtype"] == "table") && (empty($fd['formfld_data'])) ) {
+				if ( ($fd["formtype"] == "table") && (empty($fd['formfld_data']) ) ) {
 					// first time so build fields from table
 					$query = "SHOW COLUMNS FROM ".$formname;
 					$result = $this->modx->query($query);
 					if (!is_object($result)) return $this->failure($this->modx->lexicon('formdatamanager_tables_sqlfail'));
 					$flddata = $result->fetchAll(PDO::FETCH_ASSOC);
 					$ord = 0;
-					$count = 0;
+					$ic = 0;
+					$count = count($flddata);
 					foreach ($flddata as &$field) {
-						if ( ($count < $start) || ($count >= $limit) ) {
-							$count++;
+						if ( ($ic < $start) || ($ic >= $limit) ) {
+							$ic++;
 							continue;
 						}
 						$fl = $field['Field'];
@@ -74,17 +80,24 @@ class FormDataManagerGetFldDataProcessor extends modProcessor
 						$ft = $this->getTypeClass($type);
 						$inc = 1;
 						if ($ft == "spatial") $inc = 0;
-						$data[] = array('id' => $ord,'order' => $ord,'label' => $fl,'type' => $ft,'include' => $inc,'coltitle' => $fl,'default' => '');
+						if ($inc) $data[] = array('id' => $ord,'label' => $fl);
 						$ord++;
-						$count++;						
+						$ic++;						
 					}				
 				}
 				else {
-					$ldata = json_decode($fd['formfld_data']);
-					foreach($ldata as $ro) {
+					$flddata = json_decode($fd['formfld_data']);
+					foreach($flddata as $ro) {
 						$rows = json_decode($ro,TRUE);
+						$ic = 0;
+						$count = count($rows);
 						foreach($rows as $r) {
-							$data[] = $r;
+							if ( ($ic < $start) || ($ic >= $limit) ) {
+								$ic++;
+								continue;
+							}
+							$tpldata[] = $r;
+							$ic++;
 						}
 					}
 				}
@@ -107,6 +120,10 @@ class FormDataManagerGetFldDataProcessor extends modProcessor
 					$c->sortby('`id`','DESC');
 					$frmrecs = $this->modx->getCollection($classname, $c);
 					$frmflds = array();
+					// Add fields for Id, date & IP
+					//$frmflds['id'] = 0;
+					//$frmflds['sent on'] = 0;
+					//$frmflds['ip'] = 0;					
 					$fc = 0;
 					foreach($frmrecs as $frmr) {
 						if ($fc > 10) break;	// limit to last 10 recs 
@@ -117,12 +134,12 @@ class FormDataManagerGetFldDataProcessor extends modProcessor
 						}
 						$fc++;
 					}
-					ksort($frmflds);
+					//ksort($frmflds);
 					$ord = 0;
 					foreach($frmflds as $fl => $fd) {
 						$type = 'text';
 						if (is_array($fd)) $type = 'textarea';
-						$data[] = array('id' => $ord,'order' => $ord,'label' => $fl,'type' => $type,'include' => 1,'coltitle' => $fl,'default' => '');
+						$data[] = array('id' => $ord,'label' => $fl);
 						$ord++;
 					}
 				}	
@@ -148,14 +165,56 @@ class FormDataManagerGetFldDataProcessor extends modProcessor
 						$settings = $this->modx->fromJSON($fd['settings'], false);
 						$type = $fd['type'];
 						if ($type == "select") $type = "text";
-						$data[] = array('id' => $fd['id'],'order' => $ord,'label' => $settings->label,'type' => $type,'include' => 1,'coltitle' => $settings->label,'default' => '');
+						$data[] = array('id' => $fd['id'],'label' => $settings->label);
 						$ord++;
 					}
 				}
 			}
 		}
+		
+		if ( ($newtpl) || ( ($tpl) && (count($tpldata) == 0) ) ) {
+			unset($c);
+			unset($flddata);	
+			$classname = 'FdmLayouts';
+			$c = $this->modx->newQuery($classname);
+			$c->select($this->modx->getSelectColumns($classname, $classname));
+			$c->where(array('id' => $tpl));
+			$tcount = $this->modx->getCount($classname, $c);
+			if ($tcount<1) return $this->failure($this->modx->lexicon('formdatamanager_maptemplatelayout_tplerror'));
+			$tpldata = $this->modx->getCollection($classname, $c);
+			if (!empty($tpldata)) $layout = $tpldata;
+			$tpldata = array();
+			if (count($layout)) {
+				// Format for grid
+				foreach($layout as $fdmd) {
+					$fd = $fdmd->toArray();
+					$flddata = json_decode($fd['formfld_data']);
+					foreach($flddata as $ro) {
+						$rows = json_decode($ro,TRUE);
+						//$ord = 0;
+						foreach($rows as $r) {
+							$r["include"] = 1;
+							$r["mapfield"] = "";
+							$r["tplfield"] = 1;
+							$tpldata[] = $r;
+							//$ord++;
+						}
+					}
+				}
+			}
+			// compare data again template fields - and set any matches
+			foreach ($data as $r) {
+				$lbl = $r["label"];
+				for ($i=0; $i<count($tpldata); $i++) {
+					if ($tpldata[$i]['label'] == $lbl) {
+						$tpldata[$i]['mapfield'] = $lbl;
+						break;
+					}
+				}
+			}
+		}
 			
-		return $this->outputArray($data,$count);
+		return $this->outputArray($tpldata,count($tpldata));
     }
 	
 	/**
@@ -398,4 +457,4 @@ class FormDataManagerGetFldDataProcessor extends modProcessor
     }	
 	
 }
-return 'FormDataManagerGetFldDataProcessor';
+return 'FormDataManagerGetMapFldDataProcessor';
