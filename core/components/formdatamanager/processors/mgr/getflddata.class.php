@@ -89,7 +89,7 @@ class FormDataManagerGetFldDataProcessor extends modProcessor
 							if ($inc) $data[] = array('id' => $ord,'name' => $fl);
 						}
 						else {
-							$data[] = array('id' => $ord,'order' => $ord,'label' => $fl,'type' => $ft,'include' => $inc,'coltitle' => $fl,'default' => '');
+							$data[] = array('id' => $ord,'order' => $ord,'label' => $fl,'type' => $ft,'include' => $inc,'coltitle' => $fl,'default' => '', 'ofn' => '');
 						}
 						$ord++;
 						$ic++;						
@@ -158,7 +158,7 @@ class FormDataManagerGetFldDataProcessor extends modProcessor
 							if (substr($fl,0,6) != "nospam") $data[] = array('id' => $ord,'name' => $fl);
 						}
 						else {
-							$data[] = array('id' => $ord,'order' => $ord,'label' => $fl,'type' => $type,'include' => 1,'coltitle' => $fl,'default' => '');
+							$data[] = array('id' => $ord,'order' => $ord,'label' => $fl,'type' => $type,'include' => 1,'coltitle' => $fl,'default' => '', 'ofn' => '');
 						}
 						$ord++;
 					}
@@ -194,7 +194,7 @@ class FormDataManagerGetFldDataProcessor extends modProcessor
 							$data[] = array('id' => $fd['id'],'name' => $settings->label);
 						}
 						else {
-							$data[] = array('id' => $fd['id'],'order' => $ord,'label' => $settings->label,'type' => $type,'include' => 1,'coltitle' => $settings->label,'default' => '');
+							$data[] = array('id' => $fd['id'],'order' => $ord,'label' => $settings->label,'type' => $type,'include' => 1,'coltitle' => $settings->label,'default' => '', 'ofn' => '');
 						}
 						$ord++;
 					}

@@ -196,6 +196,7 @@ class FormDataManagerGetMapFldDataProcessor extends modProcessor
 							$r["include"] = 1;
 							$r["mapfield"] = "";
 							$r["tplfield"] = 1;
+							$r["ofn"] = "";
 							$tpldata[] = $r;
 							//$ord++;
 						}

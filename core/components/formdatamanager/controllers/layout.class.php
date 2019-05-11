@@ -70,6 +70,13 @@ class FormDataManagerLayoutManagerController extends modExtraManagerController {
 				}
 			}
 		}
+		// load any output functions
+		$xfs = $this->modx->runSnippet("fdmViewExportFunctions",array());
+		$afns = $xfs->fdmfunctionlist();
+		$ofns = array(array(""));
+		foreach ($afns as $afn) {
+			$ofns[] = array($afn);
+		}
 	
         $this->addHtml('<script type="text/javascript">
         ModFormDataManager.config.connector_url = "'.$this->config['connector_url'].'";
@@ -77,7 +84,8 @@ class FormDataManagerLayoutManagerController extends modExtraManagerController {
 		ModFormDataManager.config.formname = "'.$formname.'";
 		ModFormDataManager.config.layoutid = '.$layoutid.';
 		ModFormDataManager.config.selectionfield = "'.$selectionfield.'";		
-		ModFormDataManager.config.hometab = "'.$hometab.'";		
+		ModFormDataManager.config.hometab = "'.$hometab.'";
+		ModFormDataManager.config.outputfunctions = '.json_encode($ofns).';		
         </script>');
 		$this->addJavascript($this->config['assets_url'].'js/formdatamanager.js');
     }

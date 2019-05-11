@@ -31,6 +31,10 @@ class FormDataManagerExportDataProcessor extends modProcessor
 		$istable = false;
 		if (trim($formid) == 'table') $istable = true;
 		$dateFormat = $this->modx->getOption('manager_date_format') . ' ' . $this->modx->getOption('manager_time_format');
+		$afns = array();
+		
+		$xfs = $this->modx->runSnippet("fdmViewExportFunctions",array());
+		$afns = $xfs->fdmfunctionlist();
 		
 		if (!empty($savetofile)) {
 			$exportPath = $this->modx->getOption('core_path', null, MODX_CORE_PATH).'export/FormDataManager/';
@@ -123,8 +127,10 @@ class FormDataManagerExportDataProcessor extends modProcessor
 									$v = null;
 									if ( ($template) && ($fl == "date") && (!empty($item['date'])) ) $v = date($dateFormat, $item['date']);
 									if ( ($template) && ($fl == "ip") && (!empty($item['ip'])) ) $v = $item['ip'];
-									if (is_null($v)) $v = (isset($values->$fl)) ? $values->$fl : "";
+									if (is_null($v)) $v = (isset($values->$fl)) ? $values->$fl : "";								
 									if (is_array($v)) $v = implode('/', $v);
+									$ofn = (isset($lofld['ofn'])) ? trim($lofld['ofn']) : "";
+									if (!empty($ofn)) $v = $xfs->fdmdofunction($ofn,$v);								
 									if ( (empty($v)) && (!empty($lofld['default'])) ) $v = $lofld['default'];
 									$data[] = $v;
 								}
@@ -178,6 +184,8 @@ class FormDataManagerExportDataProcessor extends modProcessor
 								$v = (isset($values[$fl])) ? $values[$fl] : "";
 								if ( (is_string($v)) && (substr($v,0,1) == "{") ) $v = str_replace('"','""',$v);
 								if (is_array($v)) $v = implode('/', $v);
+								$ofn = (isset($lofld['ofn'])) ? trim($lofld['ofn']) : "";
+								if (!empty($ofn)) $v = $xfs->fdmdofunction($ofn,$v);
 								if ( (empty($v)) && (!empty($lofld['default'])) ) $v = $lofld['default'];
 								$v = $this->formatfld($v,$lofld['type'],$dateFormat);
 								
@@ -244,6 +252,8 @@ class FormDataManagerExportDataProcessor extends modProcessor
 													$values = unserialize($fd->value);
 													if (is_array($values)) $values = implode('/', $values);										
 													$v = $values;
+													$ofn = (isset($lofld['ofn'])) ? trim($lofld['ofn']) : "";
+													if (!empty($ofn)) $v = $xfs->fdmdofunction($ofn,$v);									
 													break;
 												}
 											}

@@ -10,7 +10,7 @@ An additional tab provides the ability to add tables i.e. Custom tables used to 
 NOTE: New from version 1.3+ an extra tab has been added so that you can create templates for the data view/export.
 This is a useful facility if you wish to export multiple forms in a standard format. The option is provided when defining a layout for
 a form (or table) to use a defined template, you then need to map the fields from the form/table to the predefined ones in the template.
-When setting up the template you enter comma seperated column names, fields types (text/number/date), default values & an optional field
+When setting up the template you enter comma separated column names, fields types (text/number/date), default values & an optional field
 that contains a date that can be used for the selection range when exporting.
 It is now also possible to mark formz/formit forms as inactive so as to reduce the number appearing in each tab.
 

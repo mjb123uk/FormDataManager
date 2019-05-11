@@ -33,8 +33,8 @@ class FormDataManagerGetFormzListProcessor extends modProcessor
 			$c = $this->modx->newQuery($classname);
 			$c->select($this->modx->getSelectColumns($classname, $classname));
 			$c->where(array('formtype' => 'formz'));
-			$w = ($activeFilter == "Inactive") ? 0 : 1;
-			$c->where(array('inactive' => $w));
+			if ($activeFilter == "Inactive") $c->where(array('inactive:!=' => 1));
+			else $c->where(array('inactive' => 1));
 			$excludecount = $this->modx->getCount($classname, $c);
 			if ($excludecount) {
 				$elrs = $this->modx->getCollection($classname, $c);

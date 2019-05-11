@@ -35,6 +35,7 @@ $_lang['formdatamanager_fldgrid.default'] = 'Default Value';
 $_lang['formdatamanager_fldgrid.include'] = 'Include?';
 $_lang['formdatamanager_fldgrid.mapfield'] = 'Mapped Field';
 $_lang['formdatamanager_fldgrid.tplfield'] = 'Template Field';
+$_lang['formdatamanager_fldgrid.outputfunction'] = 'Output Function';
 $_lang['formdatamanager_form.formname'] = 'Form Name';
 $_lang['formdatamanager_form.editedon'] = 'Edited On';
 $_lang['formdatamanager_form.export'] = 'Export Form Data';

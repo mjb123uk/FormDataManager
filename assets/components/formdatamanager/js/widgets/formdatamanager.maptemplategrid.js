@@ -10,7 +10,7 @@ ModFormDataManager.maptemplategrid = function(config) {
 			,tpl: ModFormDataManager.config.template
 			,newtpl: ModFormDataManager.config.newtpl
 		}
-		,fields:['id','order','label','type','include','mapfield','default','tplfield']
+		,fields:['id','order','label','type','include','mapfield','default','tplfield','ofn']
 		,paging:false		// set to false as otherwise changes can be lost when paginating
 		,autoheight: false
 		,maxHeight: 500
@@ -56,9 +56,16 @@ ModFormDataManager.maptemplategrid = function(config) {
 			,width:35
 			,editor: { xtype: 'modx-combo-mapfieldname' }
 		}, {
+			header:_('formdatamanager_fldgrid.outputfunction')
+			,dataIndex:'ofn'
+			,sortable:false
+			,width:20
+			,editor: { xtype: 'modx-combo-outputfunctions' }
+		}, {
 			header:_('formdatamanager_fldgrid.default')
 			,dataIndex:'default'
 			,sortable:false
+			,width: 40
 			,editor: { xtype: 'textfield' }
 		}, {
 			header:_('formdatamanager_fldgrid.tplfield')
@@ -234,6 +241,24 @@ ModFormDataManager.combo.FieldTypes = function(config) {
 Ext.extend(ModFormDataManager.combo.FieldTypes,MODx.combo.ComboBox);
 Ext.reg('modx-combo-fieldtype',ModFormDataManager.combo.FieldTypes);    
 */
+
+ModFormDataManager.combo.OutputFunctions = function(config) {
+    config = config || {};
+    Ext.applyIf(config,{
+        store: new Ext.data.ArrayStore({
+            id: 0
+            ,fields: ['fname']
+			,allowBlank: true
+			,data: ModFormDataManager.config.outputfunctions
+        })
+        ,mode: 'local'
+        ,displayField: 'fname'
+        ,valueField: 'fname'
+    });
+    ModFormDataManager.combo.OutputFunctions.superclass.constructor.call(this,config);
+};
+Ext.extend(ModFormDataManager.combo.OutputFunctions,MODx.combo.ComboBox);
+Ext.reg('modx-combo-outputfunctions',ModFormDataManager.combo.OutputFunctions);
 
 ModFormDataManager.combo.MapFieldNames = function(config) {
     config = config || {};

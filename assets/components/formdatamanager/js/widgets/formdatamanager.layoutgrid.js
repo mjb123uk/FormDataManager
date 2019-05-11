@@ -8,7 +8,7 @@ ModFormDataManager.layoutgrid = function(config) {
 			,formid: ModFormDataManager.config.formid
 			,formname: ModFormDataManager.config.formname
 		}
-		,fields:['id','order','label','type','include','coltitle','default']
+		,fields:['id','order','label','type','include','coltitle','default','ofn']
 		,paging:false		// set to false as otherwise changes can be lost when paginating
 		,autoheight: false
 		,maxHeight: 500
@@ -54,9 +54,16 @@ ModFormDataManager.layoutgrid = function(config) {
 			,editor: { xtype: 'textfield' }
 			,hidden: (ModFormDataManager.config.formid == "template" ) ? true : false
 		}, {
+			header:_('formdatamanager_fldgrid.outputfunction')
+			,dataIndex:'ofn'
+			,sortable:false
+			,width:20
+			,editor: { xtype: 'modx-combo-outputfunctions' }
+		}, {
 			header:_('formdatamanager_fldgrid.default')
 			,dataIndex:'default'
 			,sortable:false
+			,width: 40
 			,editor: { xtype: 'textfield' }
 		}]
 		,tbar : new Ext.Toolbar({
@@ -199,6 +206,7 @@ Ext.extend(ModFormDataManager.layoutgrid, MODx.grid.Grid, {
 							,include: true
 							,coltitle: w
 							,default: r.dfdefault
+							,ofn: ""
 						});
 						s.add(rec);
 					},scope:this }
@@ -234,6 +242,24 @@ ModFormDataManager.combo.FieldTypes = function(config) {
 };
 Ext.extend(ModFormDataManager.combo.FieldTypes,MODx.combo.ComboBox);
 Ext.reg('modx-combo-fieldtype',ModFormDataManager.combo.FieldTypes);    
+
+ModFormDataManager.combo.OutputFunctions = function(config) {
+    config = config || {};
+    Ext.applyIf(config,{
+        store: new Ext.data.ArrayStore({
+            id: 0
+            ,fields: ['fname']
+			,allowBlank: true
+			,data: ModFormDataManager.config.outputfunctions
+        })
+        ,mode: 'local'
+        ,displayField: 'fname'
+        ,valueField: 'fname'
+    });
+    ModFormDataManager.combo.OutputFunctions.superclass.constructor.call(this,config);
+};
+Ext.extend(ModFormDataManager.combo.OutputFunctions,MODx.combo.ComboBox);
+Ext.reg('modx-combo-outputfunctions',ModFormDataManager.combo.OutputFunctions);
 
 ModFormDataManager.combo.Fields = function(config) {
     config = config || {};
