@@ -107,3 +107,8 @@ $_lang['formdatamanager_viewdata_desc'] = 'Data Viewer for [';
 $_lang['formdatamanager_viewdatagrid.createdon'] = 'Created On';
 $_lang['formdatamanager_viewdatagrid.data'] = 'Form Data';
 $_lang['formdatamanager_viewdata_tab1'] = 'View Data';
+// System settings
+$_lang['setting_fdm_formit_lookup_history_count'] = 'FormIt Lookup History Count';
+$_lang['setting_fdm_formit_lookup_history_count_desc'] = 'No. of historical FormIt records to scan for field names';
+$_lang['setting_fdm_allow_autoexports'] = 'Allow automatic exports via CRON job?';
+$_lang['setting_fdm_allow_autoexports_desc'] = 'Set to Yes to enable to automatic export function vis the fdmExportTask snippet';

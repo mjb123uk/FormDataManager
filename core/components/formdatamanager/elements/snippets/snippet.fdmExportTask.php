@@ -5,6 +5,14 @@
  * FormDataManager
  */
 
+// Check this functionality allowed - system setting
+
+$allowed = $this->modx->getOption('fdm_allow_autoexports',null,0);
+if (!$allowed) {
+    echo "<html><title>FormDataManger Error</title><body><h1>Permission Error</h1><p>The FormDataManger auto export function is unavailable.</p></body></html>";
+    exit();
+}
+
 // Load Class
 
 if (!isset($scriptProperties)) $scriptProperties = array();

@@ -73,7 +73,7 @@ class FormDataManagerLayoutManagerController extends modExtraManagerController {
 		// load any output functions
 		$xfs = $this->modx->runSnippet("fdmViewExportFunctions",array());
 		$afns = $xfs->fdmfunctionlist();
-		$ofns = array(array(""));
+		$ofns = array(array(" "));
 		foreach ($afns as $afn) {
 			$ofns[] = array($afn);
 		}

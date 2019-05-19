@@ -259,12 +259,6 @@ MODx.window.CreateFormTable = function(config) {
             ,name: 'tablename'
             ,anchor: '100%'
             ,allowBlank: false
-        },{
-            xtype: 'textarea'
-            ,fieldLabel: _('description')
-            ,name: 'description'
-            ,anchor: '100%'
-            ,grow: true
         }]
         ,keys: []
     });

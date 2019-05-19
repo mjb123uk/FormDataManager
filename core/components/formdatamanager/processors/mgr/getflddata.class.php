@@ -141,8 +141,9 @@ class FormDataManagerGetFldDataProcessor extends modProcessor
 						$frmflds['ip'] = 0;
 					}
 					$fc = 0;
+					$fihc = $this->modx->getOption('fdm_formit_lookup_history_count',null,10);
 					foreach($frmrecs as $frmr) {
-						if ($fc > 10) break;	// limit to last 10 recs 
+						if ($fc > $fihc) break;	// limit to last n recs (default 10) - see system setting fdm_formit_lookup_history_count
 						$fd = $frmr->toArray();
 						$values = $this->modx->fromJSON($fd['values'], false);
 						foreach($values as $k => $v) {
@@ -189,7 +190,15 @@ class FormDataManagerGetFldDataProcessor extends modProcessor
 						$fd = $frmfld->toArray();
 						$settings = $this->modx->fromJSON($fd['settings'], false);
 						$type = $fd['type'];
-						if ($type == "select") $type = "text";
+						switch ($type) {
+							case "date":
+							case "number":
+							case "textarea":
+								break;
+							default:
+								$type = "text";
+								break;
+						}
 						if ($forcombo) {
 							$data[] = array('id' => $fd['id'],'name' => $settings->label);
 						}
