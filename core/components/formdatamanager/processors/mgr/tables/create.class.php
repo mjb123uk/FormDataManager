@@ -22,9 +22,9 @@
 		if (empty($id)) {
             $this->addFieldError('id',$this->modx->lexicon('formdatamanager_layout_err_ns_name'));
         } else {
-            if ($this->doesAlreadyExist(array('id' => $id))) {
-                $this->addFieldError('id',$this->modx->lexicon('formdatamanager_layout_err_ae'));
-            }
+            //if ($this->doesAlreadyExist(array($lf => $id))) {
+            //    $this->addFieldError($id,$this->modx->lexicon('formdatamanager_layout_err_ae'));
+            //}
         }	
 
 		//$data = $this->getProperty('data');

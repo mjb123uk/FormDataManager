@@ -18,7 +18,7 @@
             $this->addFieldError('id',$this->modx->lexicon('formdatamanager_layout_err_ns'));
         } else {
             if (!$this->doesAlreadyExist(array('id' => $formid))) {
-                $this->addFieldError('id',$this->modx->lexicon('formdatamanager_layout_err_nf'));
+                $this->addFieldError($formid,$this->modx->lexicon('formdatamanager_layout_err_nf'));
             }
         }	
 		$ntpl = false;
