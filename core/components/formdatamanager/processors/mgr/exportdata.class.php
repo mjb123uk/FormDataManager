@@ -17,7 +17,6 @@ class FormDataManagerExportDataProcessor extends modProcessor
 
     public function process()
     {
-		
 		$scriptProperties = $this->getProperties();
 		$formid = $scriptProperties['formid'];
 		$formname = $scriptProperties['formname'];
@@ -28,16 +27,20 @@ class FormDataManagerExportDataProcessor extends modProcessor
     	$endDate = $scriptProperties['endDate'];
 		$savetofile = isset($scriptProperties['savetofile']) ? $scriptProperties['savetofile'] : "";
 		$savetofolder = isset($scriptProperties['savetofolder']) ? $scriptProperties['savetofolder'] : "";
+		$bulkexport = isset($scriptProperties['bulkexport']) ? $scriptProperties['bulkexport'] : false;
+		$autoexport = isset($scriptProperties['autoexport']) ? $scriptProperties['autoexport'] : false;
 		$istable = false;
 		if (trim($formid) == 'table') $istable = true;
 		$dateFormat = $this->modx->getOption('manager_date_format') . ' ' . $this->modx->getOption('manager_time_format');
 		$afns = array();
 		
-		$xfs = $this->modx->runSnippet("fdmViewExportFunctions",array());
+		if (class_exists('FormDataManagerViewExportFunctions',false)) $xfs = new FormDataManagerViewExportFunctions();
+		else $xfs = $this->modx->runSnippet("fdmViewExportFunctions",array());
 		$afns = $xfs->fdmfunctionlist();
 		
 		if (!empty($savetofile)) {
-			$exportPath = $this->modx->getOption('core_path', null, MODX_CORE_PATH).'export/FormDataManager/';
+			$exportPath = $this->modx->getOption('fdm_export_folder_path',null,$this->modx->getOption('core_path', null, MODX_CORE_PATH).'export/FormDataManager/');
+			$exportPath = str_replace('{core_path}',$this->modx->getOption('core_path', null, MODX_CORE_PATH),$exportPath);
 			if (!is_dir($exportPath)) mkdir($exportPath);
 			if (!empty($savetofolder)) {
 				$exportPath .= $savetofolder.'/';
@@ -278,7 +281,7 @@ class FormDataManagerExportDataProcessor extends modProcessor
 		
 		$lastfld = "export";
         if (empty($savetofile)) $csv = $this->toCSV($lists, $header, ',', '"', "\r\n");
-		else $lastfld = "autoexp";
+		if ($autoexport) $lastfld = "autoexp";
 			
 		// Update Layout last export dates
 		$layout = $this->modx->getObject('FdmLayouts',$layoutid);
@@ -305,7 +308,6 @@ class FormDataManagerExportDataProcessor extends modProcessor
 
     private function toCSV(array $content, array $header, $delimiter = ',', $enclosure, $lineEnding = null)
     {
-		
         if ($lineEnding === null) {
             $lineEnding = PHP_EOL;
         }

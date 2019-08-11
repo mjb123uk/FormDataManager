@@ -77,14 +77,8 @@ if (count($fdmdata)) {
 		$fields['formid'] = $fd['formid'];
 		$fields['formname'] = $fd['formname']; 
 		$fields['layoutid'] = $fd['id'];
-		$fx = $fd['formfld_extra'];
-		$tpl = 0;
-		if (substr($fx,0,9) == "template:") {
-		    $tpl = trim(substr($fx,9));
-		    $fx = isset($templates[$tpl]) ? $templates[$tpl] : "";  // get template selectfield
-		}
-		$fields['fldextra'] = $fx;
-		$fields['template'] = $tpl;
+		$fields['template'] = $fd['templateid'];
+		$fields['autoexport'] = true;
 		$lastautoexpto = $fd['lastautoexpto'];
 		if (!empty($lastautoexpto)) $lastautoexpto = date('Y-m-d H:i:s',strtotime($lastautoexpto) + 1);
 		$fields['startDate'] = $lastautoexpto;

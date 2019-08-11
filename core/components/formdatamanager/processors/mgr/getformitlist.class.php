@@ -64,7 +64,7 @@ class FormDataManagerGetFormItListProcessor extends modProcessor
 			foreach($frms as $frm) {
 				$fd = $frm->toArray();
 				$total = $this->modx->getCount($classname, array('form' => $fd['form']));
-				$data[] = array('id' => $i, 'type' => 'formit', 'name' => $fd['form'], 'inactive' => 0, 'editedon' => $fd['editedon'], 'has_layout' => 'No', 'layoutid' => 0, 'has_tpl' => 'No', 'lastexport' => '', 'selectionfield' => '', 'templateid' => 0, 'total' => $total);
+				$data[] = array('id' => $fd['form'], 'type' => 'formit', 'name' => $fd['form'], 'inactive' => 0, 'editedon' => $fd['editedon'], 'has_layout' => 'No', 'layoutid' => 0, 'has_tpl' => 'No', 'lastexport' => '', 'selectionfield' => '', 'templateid' => 0, 'total' => $total);
 				$i++;
 			}
 			

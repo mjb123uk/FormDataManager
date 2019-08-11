@@ -6,7 +6,7 @@ ModFormDataManager.templatesgrid = function(config) {
 		,baseParams:{
 			action: 'gettemplateslist'
 		}
-		,fields:['id','name','selectionfield', 'hasdata', 'usedcount']
+		,fields:['id','name','selectionfield', 'hasdata', 'usedcount', 'tpleditdata']
 		,paging:true
 		,remoteSort:true
 		,columns:[{
@@ -27,6 +27,10 @@ ModFormDataManager.templatesgrid = function(config) {
 			header:_('formdatamanager_templates.usedcount')
 			,dataIndex:'usedcount'
 			,width:60
+		}, {
+			header: 'tpleditdata'
+			,dataIndex:'tpleditdata'
+			,hidden: true
 		}, {
             header: '&#160;'
             ,renderer: function (v, md, rec) {
@@ -51,6 +55,13 @@ ModFormDataManager.templatesgrid = function(config) {
 					});
 				}
 				if (model.hasdata == 'Yes') {
+					btns += ModFormDataManager.grid.btnRenderer({
+						items: [{
+							id: 'edit-' + rec.id
+							,fieldLabel: _('formdatamanager_templates_edit' )
+							,className: 'edit'
+						}]
+					});
 					btns += ModFormDataManager.grid.btnRenderer({
 						items: [{
 							id: 'viewlayout-' + rec.id
@@ -93,6 +104,10 @@ Ext.extend(ModFormDataManager.templatesgrid,MODx.grid.Grid,{
 		}
 		if (model.hasdata == 'Yes') {
 			m.push({
+				text:_('formdatamanager_templates_edit')
+				,handler:this.editTemplate
+			});			
+			m.push({
 				text:_('formdatamanager_templates_viewlayout')
 				,handler:this.viewLayout
 			});
@@ -123,6 +138,46 @@ Ext.extend(ModFormDataManager.templatesgrid,MODx.grid.Grid,{
 			window.fdmSetupWindow.fp.getForm().reset();
 		}			
         window.fdmSetupWindow.show(e.target);
+	}
+	,editTemplate:function(btn,e) {
+		if (!this.menu.record || !this.menu.record.name) return false;
+		var r = this.menu.record;
+		ModFormDataManager.config.rid = r.id;
+		ModFormDataManager.config.tpleditdata = JSON.parse(r.tpleditdata);
+		if (!window.fdmEditWindow) {
+			fdmEditWindow = new MODx.window.EditTemplate({
+				listeners: {
+					'success': {
+						fn: function(r) { 
+							this.refresh();
+							this.editUpd();
+						}, scope: this
+					}
+				}
+			});
+		}
+		else {
+			window.fdmEditWindow.fp.getForm().reset();
+			window.fdmEditWindow.setValues({templatefields: ModFormDataManager.config.tpleditdata.fields, templatefldtypes: ModFormDataManager.config.tpleditdata.fldtypes,templatedefaults: ModFormDataManager.config.tpleditdata.defaults, templateselectfld: ModFormDataManager.config.tpleditdata.selectfld});	
+		}			
+        window.fdmEditWindow.show(e.target);
+	}
+	,editUpd: function() {
+		MODx.Ajax.request({
+			url: ModFormDataManager.config.connector_url
+			,params: {
+				action: 'templates/editupd'
+				,id: ModFormDataManager.config.rid
+			}
+			,listeners: {
+				success: function(response, opts) {
+					//console.log('Edit updates successful');
+				}
+				,failure: function(response, opts) {
+					//console.log('server-side failure with status code ' + response.status);
+				}
+			}
+		});
 	}
 	,newTemplate:function(btn, e) {
         if (!window.fdmSetupWindow) {
@@ -174,6 +229,9 @@ Ext.extend(ModFormDataManager.templatesgrid,MODx.grid.Grid,{
                 case 'setup':
                     this.setupTemplate('', e);
                     break;
+                case 'edit':
+                    this.editTemplate('', e);
+                    break;					
                 case 'remove':
                     this.removeTemplate();
                     break;					
@@ -270,3 +328,58 @@ MODx.window.SetupTemplate = function(config) {
 };
 Ext.extend(MODx.window.SetupTemplate,MODx.Window);
 Ext.reg('modx-window-formdatamanager-template-setup',MODx.window.SetupTemplate);
+
+/**
+ * Generates the Template Edit window.
+ *
+ * @class MODx.window.Template
+ * @extends MODx.Window
+ * @param {Object} config An object of options.
+ * @xtype modx-window-formdatamanager-template-edit
+ */
+MODx.window.EditTemplate = function(config) {
+    config = config || {};
+    Ext.applyIf(config,{
+        title: _('formdatamanager_template_edit')
+        ,url: ModFormDataManager.config.connector_url
+        ,action: 'templates/edit'
+        ,fields: [{
+            xtype: 'hidden'
+            ,name: 'id'
+			,value: ModFormDataManager.config.rid
+        },{
+            xtype: 'textarea'
+            ,fieldLabel: _('formdatamanager_template_templatefields')
+            ,name: 'templatefields'
+            ,anchor: '100%'
+            ,allowBlank: false
+			,value: ModFormDataManager.config.tpleditdata.fields
+			,grow: true
+        },{
+            xtype: 'textarea'
+            ,fieldLabel: _('formdatamanager_template_templatefldtypes')
+            ,name: 'templatefldtypes'
+            ,anchor: '100%'
+			,value: ModFormDataManager.config.tpleditdata.fldtypes
+            ,grow: true
+        },{
+            xtype: 'textarea'
+            ,fieldLabel: _('formdatamanager_template_templatedefaults')
+            ,name: 'templatedefaults'
+            ,anchor: '100%'
+			,value: ModFormDataManager.config.tpleditdata.defaults			
+            ,grow: true
+        },{
+            xtype: 'textfield'
+            ,fieldLabel: _('formdatamanager_templates.selectfld')
+            ,name: 'templateselectfld'
+			,value: ModFormDataManager.config.tpleditdata.selectfld			
+            ,anchor: '100%'
+        }]
+        ,keys: []
+    });
+    MODx.window.EditTemplate.superclass.constructor.call(this,config);
+};
+Ext.extend(MODx.window.EditTemplate,MODx.Window);
+Ext.reg('modx-window-formdatamanager-template-edit',MODx.window.EditTemplate);
+

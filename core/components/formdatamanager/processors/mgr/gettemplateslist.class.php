@@ -70,7 +70,23 @@ class FormDataManagerGetTemplatesListProcessor extends modProcessor
 			}
 			else {
 				$w = (isset($tudata[$fd['id']])) ? $tudata[$fd['id']] : 0;
-				$data[] = array('id' => $fd['id'],'name' => $tpl,'selectionfield' => $fd['selectionfield'], 'hasdata' => $hasdata, 'usedcount' => $w);
+				$flddata = json_decode($fd['formfld_data']);
+				$tpldata = array('fields','fldtypes','defaults');
+				foreach($flddata as $ro) {
+					$rows = json_decode($ro,TRUE);
+					foreach($rows as $r) {
+						$tpldata['fields'][] = $r['label'];
+						$tpldata['fldtypes'][] = $r['type'];
+						$tpldata['defaults'][] = $r['default'];
+					}
+				}
+				$tpleditdata = array();				
+				$tpleditdata['fields'] = implode(",",$tpldata['fields']);
+				$tpleditdata['fldtypes'] = implode(",",$tpldata['fldtypes']);
+				$tpleditdata['defaults'] = implode(",",$tpldata['defaults']);			
+				$tpleditdata['selectfld'] = $fd['selectionfield'];				
+				$www = json_encode($tpleditdata);
+				$data[] = array('id' => $fd['id'],'name' => $tpl,'selectionfield' => $fd['selectionfield'], 'hasdata' => $hasdata, 'usedcount' => $w, 'tpleditdata' => $www);
 			}
 		}
 		if ($forcombo) $count = count($data);	

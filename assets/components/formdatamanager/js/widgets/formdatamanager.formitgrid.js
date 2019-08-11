@@ -1,5 +1,7 @@
 ModFormDataManager.formitgrid = function(config) {
 	config=config || {};
+	
+	this.sm = new Ext.grid.CheckboxSelectionModel();
 	Ext.applyIf(config,{
 		id:'mod-formdatamanager-formitgrid'
 		,url: ModFormDataManager.config.connector_url
@@ -13,7 +15,8 @@ ModFormDataManager.formitgrid = function(config) {
 		,autosave:true
 		,save_action: "layouts/gridupdate"
 		,preventSaveRefresh: 0
-		,columns:[{
+		,sm: this.sm		
+		,columns:[this.sm,{
 			header:_('id')
 			,dataIndex:'id'
 			,width:4
@@ -72,6 +75,13 @@ ModFormDataManager.formitgrid = function(config) {
             }
         }]
 		,tbar: [{
+            text: _('bulk_actions')
+            ,menu: [{
+                text: _('formdatamanager_form.bulkexport')
+                ,handler: this.bulkExport
+                ,scope: this
+            }]
+		},'->',{			
 			xtype: 'modx-combo-activefilter'
             ,name: 'formitactivefilter'
  			,value: 'Active'
@@ -135,6 +145,28 @@ Ext.extend(ModFormDataManager.formitgrid,MODx.grid.Grid,{
 		else MODx.loadPage('maptemplate','namespace=formdatamanager&id=formit&fnm='+ModFormDataManager.config.rname+'&tpn='+r.tpname);
 		return;
 	}
+	,bulkExport: function() {
+        var cs = this.getSelectedAsList();
+        if (cs === false) return false;
+
+        MODx.msg.confirm({
+            title: _('formdatamanager_form.bulkexport')
+            ,text: _('formdatamanager_form.bulkexport_multiple_confirm')
+            ,url: ModFormDataManager.config.connector_url
+            ,params: {
+                action: 'bulkexport'
+                ,layouts: cs
+				,ftype: 'formit'
+            }
+            ,listeners: {
+                'success': {fn:function(r) {
+                    this.getSelectionModel().clearSelections(true);
+                    this.refresh();
+                },scope:this}
+            }
+        });
+        return true;
+    }
 	,filterActiveFilter: function(cb,nv,ov) {
         this.getStore().baseParams.activeFilter = Ext.isEmpty(nv) || Ext.isObject(nv) ? cb.getValue() : nv;
         this.getBottomToolbar().changePage(1);
