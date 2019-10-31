@@ -48,6 +48,8 @@
 		$ww["data"] = $w;
 		$w = json_encode($ww);
 		$this->setProperty('formfld_data',$w);
+		$w = $this->getProperty('templatemapdata');		
+		$this->setProperty('formfld_extra',$w);		
 		$w = $this->getProperty('templateselectfld');
 		if (empty($w)) $w = "N/A";
 		$this->setProperty('selectionfield',$w);

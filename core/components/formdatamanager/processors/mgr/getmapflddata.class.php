@@ -193,6 +193,7 @@ class FormDataManagerGetMapFldDataProcessor extends modProcessor
 			$tpldata = $this->modx->getCollection($classname, $c);
 			if (!empty($tpldata)) $layout = $tpldata;
 			$tpldata = array();
+			$tplmap = array();	// mapping data
 			if (count($layout)) {
 				// Format for grid
 				foreach($layout as $fdmd) {
@@ -210,16 +211,31 @@ class FormDataManagerGetMapFldDataProcessor extends modProcessor
 							//$ord++;
 						}
 					}
+					$fx = $fd['formfld_extra'];
+					if (!empty($fx)) $tplmap = json_decode($fx,true);	
 				}
 			}
 			// compare data again template fields - and set any matches
 			foreach ($data as $r) {
 				$lbl = $r["label"];
+				$found = false;
 				for ($i=0; $i<count($tpldata); $i++) {
 					if ($tpldata[$i]['label'] == $lbl) {
 						$tpldata[$i]['mapfield'] = $lbl;
+						$found = true;
 						break;
 					}
+				}
+				// if mapping data - then try using it
+				if ( (!$found) && (count($tplmap)) ) {
+					$wlbl = strtolower($lbl);
+					if (isset($tplmap[$wlbl])) $tlbl = $tplmap[$wlbl];
+					for ($i=0; $i<count($tplmap); $i++) {
+						if ($tpldata[$i]['label'] == $tlbl) {
+							if (empty($tpldata[$i]['mapfield'])) $tpldata[$i]['mapfield'] = $lbl;
+							break;
+						}
+					}				
 				}
 			}
 		}

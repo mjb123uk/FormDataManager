@@ -158,7 +158,7 @@ Ext.extend(ModFormDataManager.templatesgrid,MODx.grid.Grid,{
 		}
 		else {
 			window.fdmEditWindow.fp.getForm().reset();
-			window.fdmEditWindow.setValues({templatefields: ModFormDataManager.config.tpleditdata.fields, templatefldtypes: ModFormDataManager.config.tpleditdata.fldtypes,templatedefaults: ModFormDataManager.config.tpleditdata.defaults, templateselectfld: ModFormDataManager.config.tpleditdata.selectfld});	
+			window.fdmEditWindow.setValues({templatefields: ModFormDataManager.config.tpleditdata.fields, templatefldtypes: ModFormDataManager.config.tpleditdata.fldtypes, templatedefaults: ModFormDataManager.config.tpleditdata.defaults, templatemapdata: ModFormDataManager.config.tpleditdata.mapdata, templateselectfld: ModFormDataManager.config.tpleditdata.selectfld});	
 		}			
         window.fdmEditWindow.show(e.target);
 	}
@@ -317,6 +317,12 @@ MODx.window.SetupTemplate = function(config) {
             ,anchor: '100%'
             ,grow: true
         },{
+            xtype: 'textarea'
+            ,fieldLabel: _('formdatamanager_templates.mapdata')
+            ,name: 'templatemapdata'
+            ,anchor: '100%'
+            ,grow: true
+        },{
             xtype: 'textfield'
             ,fieldLabel: _('formdatamanager_templates.selectfld')
             ,name: 'templateselectfld'
@@ -369,6 +375,13 @@ MODx.window.EditTemplate = function(config) {
             ,anchor: '100%'
 			,value: ModFormDataManager.config.tpleditdata.defaults			
             ,grow: true
+        },{
+            xtype: 'textarea'
+            ,fieldLabel: _('formdatamanager_templates.mapdata')
+            ,name: 'templatemapdata'
+            ,anchor: '100%'			
+			,value: ModFormDataManager.config.tpleditdata.mapdata			
+			,grow: true
         },{
             xtype: 'textfield'
             ,fieldLabel: _('formdatamanager_templates.selectfld')

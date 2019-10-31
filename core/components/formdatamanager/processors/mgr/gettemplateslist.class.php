@@ -83,7 +83,8 @@ class FormDataManagerGetTemplatesListProcessor extends modProcessor
 				$tpleditdata = array();				
 				$tpleditdata['fields'] = implode(",",$tpldata['fields']);
 				$tpleditdata['fldtypes'] = implode(",",$tpldata['fldtypes']);
-				$tpleditdata['defaults'] = implode(",",$tpldata['defaults']);			
+				$tpleditdata['defaults'] = implode(",",$tpldata['defaults']);
+				$tpleditdata['mapdata'] = $fd['formfld_extra'];
 				$tpleditdata['selectfld'] = $fd['selectionfield'];				
 				$www = json_encode($tpleditdata);
 				$data[] = array('id' => $fd['id'],'name' => $tpl,'selectionfield' => $fd['selectionfield'], 'hasdata' => $hasdata, 'usedcount' => $w, 'tpleditdata' => $www);

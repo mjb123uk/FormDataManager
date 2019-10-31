@@ -39,8 +39,7 @@ class FormDataManagerExportDataProcessor extends modProcessor
 		$afns = $xfs->fdmfunctionlist();
 		
 		if (!empty($savetofile)) {
-			$exportPath = $this->modx->getOption('fdm_export_folder_path',null,$this->modx->getOption('core_path', null, MODX_CORE_PATH).'export/FormDataManager/');
-			$exportPath = str_replace('{core_path}',$this->modx->getOption('core_path', null, MODX_CORE_PATH),$exportPath);
+			$exportPath = $this->modx->getOption('core_path', null, MODX_CORE_PATH).'export/FormDataManager/';
 			if (!is_dir($exportPath)) mkdir($exportPath);
 			if (!empty($savetofolder)) {
 				$exportPath .= $savetofolder.'/';

@@ -102,6 +102,7 @@ $_lang['formdatamanager_templates_edit'] = 'Edit Template';
 $_lang['formdatamanager_templates_new'] = 'Create Template';
 $_lang['formdatamanager_templates_remove'] = 'Remove Template';
 $_lang['formdatamanager_templates_setup'] = 'Setup Template';
+$_lang['formdatamanager_templates.mapdata'] = 'Map Data (JSON array to map columns)';
 $_lang['formdatamanager_templates.selectfld'] = 'Date Field (to use for export)';
 $_lang['formdatamanager_templates.templatename'] = 'Template Name';
 $_lang['formdatamanager_templates.usedcount'] = 'Used Count';
