@@ -25,22 +25,21 @@ class FormDataManagerGetFormItListProcessor extends modProcessor
 		if ($activeFilter == "All") $activeFilter = "";
 		$count = 0;
 		$data = array();
-		$excludes = array();
+		$filters = array();
 		
-		// Get any layouts to exclude
+		// Get any layouts to filter
 		if (!empty($activeFilter)) {
 			$classname = 'FdmLayouts';
 			$c = $this->modx->newQuery($classname);
 			$c->select($this->modx->getSelectColumns($classname, $classname));
 			$c->where(array('formtype' => 'formit'));
-			if ($activeFilter == "Inactive") $c->where(array('inactive:!=' => 1));
-			else $c->where(array('inactive' => 1));
-			$excludecount = $this->modx->getCount($classname, $c);
-			if ($excludecount) {
+			$c->where(array('inactive' => 1));
+			$filtercount = $this->modx->getCount($classname, $c);
+			if ($filtercount) {
 				$elrs = $this->modx->getCollection($classname, $c);
 				foreach($elrs as $elr) {
 					$er = $elr->toArray();
-					$excludes[] = $er['formname'];
+					$filters[] = $er['formname'];
 				}
 			}
 		}
@@ -54,11 +53,12 @@ class FormDataManagerGetFormItListProcessor extends modProcessor
 			$classname = 'FormItForm';
 			$c = $this->modx->newQuery($classname);
 			$c->select($this->modx->getSelectColumns($classname, $classname));
-			if (count($excludes)) $c->where(array('form:NOT IN' => $excludes));
+			if ($activeFilter == "Inactive") $c->where(array('form:IN' => $filters));
+			if ( ($activeFilter == "Active") && (count($filters)) ) $c->where(array('form:NOT IN' => $filters));
 			$c->groupby('form');
 			$count = $this->modx->getCount($classname, $c);
 			$c->limit($limit, $start); 			
-			$c->sortby('`id`','DESC');
+			$c->sortby('`form`','ASC');
 			$frms = $this->modx->getCollection($classname, $c);
 			$i = 1;
 			foreach($frms as $frm) {
@@ -102,7 +102,7 @@ class FormDataManagerGetFormItListProcessor extends modProcessor
 			else $data = !empty($lists) ? $lists : $data;
 			
 		}
-			
+		
 		return $this->outputArray($data,$count);
     }
 }

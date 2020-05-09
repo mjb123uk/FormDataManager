@@ -25,22 +25,21 @@ class FormDataManagerGetFormzListProcessor extends modProcessor
 		if ($activeFilter == "All") $activeFilter = "";
 		$count = 0;
 		$data = array();
-		$excludes = array();
+		$filters = array();
 		
-		// Get any layouts to exclude
+		// Get any layouts to filter
 		if (!empty($activeFilter)) {
 			$classname = 'FdmLayouts';
 			$c = $this->modx->newQuery($classname);
 			$c->select($this->modx->getSelectColumns($classname, $classname));
 			$c->where(array('formtype' => 'formz'));
-			if ($activeFilter == "Inactive") $c->where(array('inactive:!=' => 1));
-			else $c->where(array('inactive' => 1));
-			$excludecount = $this->modx->getCount($classname, $c);
-			if ($excludecount) {
+			$c->where(array('inactive' => 1));
+			$filtercount = $this->modx->getCount($classname, $c);
+			if ($filtercount) {
 				$elrs = $this->modx->getCollection($classname, $c);
 				foreach($elrs as $elr) {
 					$er = $elr->toArray();
-					$excludes[] = $er['formid'];
+					$filters[] = $er['formid'];
 				}
 			}
 		}
@@ -54,10 +53,11 @@ class FormDataManagerGetFormzListProcessor extends modProcessor
 			$classname = 'fmzForms';
 			$c = $this->modx->newQuery($classname);
 			$c->select($this->modx->getSelectColumns($classname, $classname));
-			if (count($excludes)) $c->where(array('id:NOT IN' => $excludes));
+			if ($activeFilter == "Inactive") $c->where(array('id:IN' => $filters));
+			if ( ($activeFilter == "Active") && (count($filters)) ) $c->where(array('id:NOT IN' => $filters));
 			$count = $this->modx->getCount($classname, $c);
 			$c->limit($limit, $start); 
-			$c->sortby('`id`','ASC');
+			$c->sortby('`name`','ASC');
 			$frms = $this->modx->getCollection($classname, $c);
 			foreach($frms as $frm) {
 				$fd = $frm->toArray();
@@ -100,7 +100,7 @@ class FormDataManagerGetFormzListProcessor extends modProcessor
 			else $data = !empty($lists) ? $lists : $data;
 			
 		}
-			
+
 		return $this->outputArray($data,$count);
     }
 }

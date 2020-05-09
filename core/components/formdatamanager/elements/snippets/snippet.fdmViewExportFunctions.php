@@ -57,6 +57,26 @@ class FormDataManagerViewExportFunctions
         if (empty($fld)) return '';
         else return strtolower($fld);
     }
+	
+	private function _ShowAsYNBlank($fld) {
+		$fld = trim($fld);
+		if (empty($fv)) return "";
+		$fld = strtoupper($fld);
+		switch ($fld) {
+			case "Y":
+			case "YES":
+			case "1":
+				return "Y";
+				break;
+			case "N":
+			case "NO":
+			case "0":
+				return "N";
+				break;				
+		}
+		// has content so take as positive
+		return "Y";
+    }
     
 }
 
