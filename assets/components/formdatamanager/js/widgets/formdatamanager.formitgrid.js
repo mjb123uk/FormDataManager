@@ -9,9 +9,9 @@ ModFormDataManager.formitgrid = function(config) {
 			action: 'getformitlist'
 			,activeFilter: 'Active'
 		}
-		,fields:['id','type','name','inactive','editedon','has_layout','layoutid','has_tpl','lastexport','selectionfield','templateid','has_submission','submissions']
+		,fields:['id','type','name','context_key','inactive','editedon','has_layout','layoutid','has_tpl','lastexport','selectionfield','templateid','has_submission','submissions']
 		,paging:true
-		,remoteSort:true
+		,remoteSort:false
 		,autosave:true
 		,save_action: "layouts/gridupdate"
 		,preventSaveRefresh: 0
@@ -25,7 +25,14 @@ ModFormDataManager.formitgrid = function(config) {
 			header:_('formdatamanager_form.formname')
 			,dataIndex:'name'
 			,width:80
+			,sortable: true
 			,tooltip:_('formdatamanager_col1_qtip')
+		}, {
+			header:_('formdatamanager_form.context_key')
+			,dataIndex:'context_key'
+			,width:30
+			,sortable: true
+			,hidden: (ModFormDataManager.config.showformitcontext == 0)
 		}, {
 			header:_('formdatamanager_form.inactive')
 			,dataIndex:'inactive'
@@ -39,7 +46,7 @@ ModFormDataManager.formitgrid = function(config) {
 		}, {
 			header:_('formdatamanager_form.has_layout')
 			,dataIndex:'has_layout'
-			,width:30
+			,width:27
 		}, {
 			header:_('formdatamanager_form.has_tpl')
 			,dataIndex:'has_tpl'
@@ -81,7 +88,7 @@ ModFormDataManager.formitgrid = function(config) {
                 ,handler: this.bulkExport
                 ,scope: this
             }]
-		},'->',{			
+		},'->',{
 			xtype: 'modx-combo-activefilter'
             ,name: 'formitactivefilter'
  			,value: 'Active'
@@ -89,7 +96,7 @@ ModFormDataManager.formitgrid = function(config) {
             ,listeners: {
                 'select': {fn:this.filterActiveFilter,scope:this}
             }
-        }]		
+        }]
 	});
 	ModFormDataManager.formitgrid.superclass.constructor.call(this,config);
 	
@@ -149,7 +156,7 @@ Ext.extend(ModFormDataManager.formitgrid,MODx.grid.Grid,{
         var cs = this.getSelectedAsList();
         if (cs === false) return false;
 
-        MODx.msg.confirm({
+        var w = MODx.msg.confirm({
             title: _('formdatamanager_form.bulkexport')
             ,text: _('formdatamanager_form.bulkexport_multiple_confirm')
             ,url: ModFormDataManager.config.connector_url
@@ -159,14 +166,51 @@ Ext.extend(ModFormDataManager.formitgrid,MODx.grid.Grid,{
 				,ftype: 'formit'
             }
             ,listeners: {
-                'success': {fn:function(r) {
-                    this.getSelectionModel().clearSelections(true);
-                    this.refresh();
-                },scope:this}
+                'success': {					
+					fn: function (r) {
+						var html = '';
+						var data = {};
+						var rcount = r.total;
+						var filename = r.results[rcount-1];
+						if (filename != '') {
+							html = _('formdatamanager_form.bulkexport_downloadmsg')+'&nbsp;' + filename;
+						}
+						Ext.Msg.show({
+							title: _('formdatamanager_form.bulkexport_success')
+							,msg: html
+							,value: filename+'.zip'
+							,buttons: Ext.Msg.YESNO
+							,fn: this.downloadExport
+							,icon: Ext.MessageBox.QUESTION
+						});
+						this.getSelectionModel().clearSelections(true);
+						this.refresh();
+					},scope:this
+				}
             }
         });
         return true;
     }
+	,downloadExport:function(btn,filename) {
+		if (btn == 'yes') {
+			if (!Ext.fly('frmDummy')) {
+				var frm = document.createElement('form');
+				frm.id = 'frmDummy';
+				frm.filename = filename;
+				frm.className = 'x-hidden';
+				document.body.appendChild(frm);
+			}
+			MODx.Ajax.request({
+				url: ModFormDataManager.config.connector_url
+				,params: {
+					action: 'bulkexports/downloadbefile'
+					,filename: filename
+				}
+				,form: Ext.fly('frmDummy')
+				,isUpload: true
+			});
+		}
+	}
 	,filterActiveFilter: function(cb,nv,ov) {
         this.getStore().baseParams.activeFilter = Ext.isEmpty(nv) || Ext.isObject(nv) ? cb.getValue() : nv;
         this.getBottomToolbar().changePage(1);

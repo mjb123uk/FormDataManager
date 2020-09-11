@@ -56,33 +56,38 @@ class FormDataManager
 
     }
 	
-	public function CreateZip() {
+	public function CreateZip($folder="",$remove=1) {
 		
 		//$this->modx->log( modX::LOG_LEVEL_ERROR, 'Starting fdmExport Zip');
-		$p = $this->modx->getOption('core_path', null, MODX_CORE_PATH).'export/FormDataManager/';
-		$stub = date('Ymd',time());
+		$p = $this->modx->getOption('fdm_export_folder_path', null, '');
+		if (empty($p)) $p = $this->modx->getOption('core_path', null, MODX_CORE_PATH).'export/FormDataManager/';
+		
+		if (empty($folder)) $folder = date('Ymd',time());
+		
 		$d = "";
 		$dir = opendir($p);
 		while ($file = readdir($dir))
 		{
 			if ($file == '.' || $file == '..') continue;
-			if ( (is_dir($p.$file)) && (substr($file,0,8) == $stub) ) {
+			if ( (is_dir($p.$file)) && (substr($file,0,strlen($folder)) == $folder) ) {
 				$d = $file;
 				break;
 			}
 		}
 		if (!empty($d)) {
 			$z = $this->_createzip($p,$d);
-			// remove folder if succesful zip
-			if ($z > 0) {
+			// if wanted remove folder if succesful zip
+			if ( ($remove) && ($z > 0) ) {
 				$fp = $p.$d;
 				array_map('unlink', glob("$fp/*.*"));
 				rmdir($fp);
 			}
+			
 		}
 	}
 		
 	private function _createzip($path,$dir) {
+		
 		// Get real path for our folder
 		$rootPath = realpath($path.$dir);
 
@@ -121,6 +126,16 @@ class FormDataManager
 	public function CreateRar() {
 		
 		//$this->modx->log( modX::LOG_LEVEL_ERROR, 'Starting fdmExport Rar');
+		
+	}
+	
+	public function getBEPath() {
+		
+		// Get the path for Bulk Exports
+		$p = $this->modx->getOption('fdm_export_folder_path', null, '');
+		if (empty($p)) $p = $this->modx->getOption('core_path', null, MODX_CORE_PATH).'export/FormDataManager/';
+		
+		return $p;
 		
 	}
 }

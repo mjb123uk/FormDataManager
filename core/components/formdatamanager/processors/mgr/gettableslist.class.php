@@ -20,7 +20,6 @@ class FormDataManagerGetTablesListProcessor extends modProcessor
 		$scriptProperties = $this->getProperties();
 		$limit = (isset($scriptProperties['limit'])) ? $scriptProperties['limit'] : 20;
 		$start = (isset($scriptProperties['start'])) ? $scriptProperties['start'] : 0;
-		$limit = $start+$limit;
 		$count = 0;	
 		$data = array();
 		
@@ -31,9 +30,11 @@ class FormDataManagerGetTablesListProcessor extends modProcessor
 		$c->where(array('formtype' => 'table'));
 		$count = $this->modx->getCount($classname, $c);
 		$tblfmts = $this->modx->getCollection($classname, $c);
-		$ic = 0;		
+		$ic = 0;
+		$limit += $start;
 		foreach($tblfmts as $tfmt) {
-			if ( ($ic < $start) || ($ic >= $limit) ) {
+			if ($ic >= $limit) break;
+			if ($ic < $start) {
 				$ic++;
 				continue;
 			}

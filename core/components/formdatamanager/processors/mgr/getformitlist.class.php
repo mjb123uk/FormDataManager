@@ -20,7 +20,6 @@ class FormDataManagerGetFormItListProcessor extends modProcessor
 		$scriptProperties = $this->getProperties();
 		$limit = (isset($scriptProperties['limit'])) ? $scriptProperties['limit'] : 20;
 		$start = (isset($scriptProperties['start'])) ? $scriptProperties['start'] : 0;
-		$limit = $start+$limit;
 		$activeFilter = (isset($scriptProperties['activeFilter'])) ? $scriptProperties['activeFilter'] : "";
 		if ($activeFilter == "All") $activeFilter = "";
 		$count = 0;
@@ -64,7 +63,7 @@ class FormDataManagerGetFormItListProcessor extends modProcessor
 			foreach($frms as $frm) {
 				$fd = $frm->toArray();
 				$total = $this->modx->getCount($classname, array('form' => $fd['form']));
-				$data[] = array('id' => $fd['form'], 'type' => 'formit', 'name' => $fd['form'], 'inactive' => 0, 'editedon' => $fd['editedon'], 'has_layout' => 'No', 'layoutid' => 0, 'has_tpl' => 'No', 'lastexport' => '', 'selectionfield' => '', 'templateid' => 0, 'total' => $total);
+				$data[] = array('id' => $fd['form'], 'type' => 'formit', 'name' => $fd['form'], 'context_key' => $fd['context_key'], 'inactive' => 0, 'editedon' => $fd['editedon'], 'has_layout' => 'No', 'layoutid' => 0, 'has_tpl' => 'No', 'lastexport' => '', 'selectionfield' => '', 'templateid' => 0, 'total' => $total);
 				$i++;
 			}
 			

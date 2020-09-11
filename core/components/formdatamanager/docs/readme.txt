@@ -28,6 +28,10 @@ If you change the structure of a form or table you will need to remove the exist
 Note - please ensure you have exported any existing form data that you may need using the existing layout before removing 
 and defining a new layout.
 
+Version 1.4+ has an additional tab on the home panel which lists any bulk export 'zip' files. These are created via the bulk export option
+for formz and formit submissions, please check the system settings for options. In addition, an extra column has been added to the formit 
+grid showing the context key, this is sortable within a display page. A system setting turns on or off this feature. 
+
 This CMP uses the Modx 2.3+ menu system and by default creates a menu entry under the Extras (Components) menu.
 
 NOTE: Since 1.3+ the processors have been made classes and all have been moved to a 'mgr' sub-folder within the processors folder.

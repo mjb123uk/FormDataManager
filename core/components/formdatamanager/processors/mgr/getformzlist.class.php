@@ -20,7 +20,6 @@ class FormDataManagerGetFormzListProcessor extends modProcessor
 		$scriptProperties = $this->getProperties();
 		$limit = (isset($scriptProperties['limit'])) ? $scriptProperties['limit'] : 20;
 		$start = (isset($scriptProperties['start'])) ? $scriptProperties['start'] : 0;
-		$limit = $start+$limit;
 		$activeFilter = (isset($scriptProperties['activeFilter'])) ? $scriptProperties['activeFilter'] : "";
 		if ($activeFilter == "All") $activeFilter = "";
 		$count = 0;

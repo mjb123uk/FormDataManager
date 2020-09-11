@@ -25,7 +25,6 @@ class FormDataManagerGetViewDataProcessor extends modProcessor
 		$template = $scriptProperties['template'];			
 		$limit = (isset($scriptProperties['limit'])) ? $scriptProperties['limit'] : 20;
 		$start = (isset($scriptProperties['start'])) ? $scriptProperties['start'] : 0;
-		$limit = $start+$limit;
 		$dateFormat = $this->modx->getOption('manager_date_format') . ' ' . $this->modx->getOption('manager_time_format');
 		$afns = array();
 		
@@ -107,16 +106,24 @@ class FormDataManagerGetViewDataProcessor extends modProcessor
 					if (!empty($selectionfield)) {
 						$q .= ' ORDER BY `'.$selectionfield.'`';
 					}
+					if ($limit > 0) $q .= ' LIMIT '.$limit;
+					if ($start > 0) $q .= ' OFFSET '.$start;
 					$result = $this->modx->query($q);
 					if (is_object($result)) {
 						$tdata = $result->fetchAll(PDO::FETCH_ASSOC);
-					}
+					}				
 					$count = 0;
-					foreach ($tdata as &$values) {
-						if ( ($count < $start) || ($count >= $limit) ) {
-							$count++;
-							continue;
-						}						
+					$tbldata = array();			
+					// get table record count        
+					$q = "SHOW TABLE STATUS LIKE '".$formname."'";
+					$result = $this->modx->query($q);
+					if (is_object($result)) {
+						$tbldata = $result->fetchAll(PDO::FETCH_ASSOC);
+					}
+					foreach ($tbldata as &$tda) {
+						$count = $tda['Rows'];
+					}
+					foreach ($tdata as &$values) {	
 						$data = array();
 
 						foreach($loflds as $lofld) {
@@ -134,7 +141,6 @@ class FormDataManagerGetViewDataProcessor extends modProcessor
 							}
 						}
 						$vrows[] = $data;
-						$count++;
 					}
 					break;
 				default:

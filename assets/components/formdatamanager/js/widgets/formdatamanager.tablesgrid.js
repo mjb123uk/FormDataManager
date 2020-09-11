@@ -32,7 +32,7 @@ ModFormDataManager.tablesgrid = function(config) {
 		}, {
 			header:_('formdatamanager_form.has_layout')
 			,dataIndex:'has_layout'
-			,width:30
+			,width:27
 		}, {
 			header:_('formdatamanager_form.has_tpl')
 			,dataIndex:'has_tpl'

@@ -22,9 +22,8 @@ class FormDataManagerGetFldDataProcessor extends modProcessor
 		$formname = $scriptProperties['formname'];
 		$forcombo = (isset($scriptProperties['forcombo'])) ? $scriptProperties['forcombo'] : false;
 		$limit = (isset($scriptProperties['limit'])) ? $scriptProperties['limit'] : 20;
-		if ( ($forcombo) ||($limit == 0) ) $limit = 999;
+		if ( ($forcombo) || ($limit == 0) ) $limit = 999;
 		$start = (isset($scriptProperties['start'])) ? $scriptProperties['start'] : 0;
-		$limit = $start+$limit;
 		
 		$data = array();
 		$layout = array();
@@ -70,8 +69,10 @@ class FormDataManagerGetFldDataProcessor extends modProcessor
 					$ord = 0;
 					$ic = 0;
 					$count = count($flddata);
+					if ($limit != 999) $limit += $start;
 					foreach ($flddata as &$field) {
-						if ( ($ic < $start) || ($ic >= $limit) ) {
+						if ($ic >= $limit) break;
+						if ($ic < $start) {
 							$ic++;
 							continue;
 						}
@@ -104,8 +105,10 @@ class FormDataManagerGetFldDataProcessor extends modProcessor
 							$rows = json_decode($ro,TRUE);
 							$ic = 0;
 							$count = count($rows);
+							if ($limit != 999) $limit += $start;
 							foreach($rows as $r) {
-								if ( ($ic < $start) || ($ic >= $limit) ) {
+								if ($ic >= $limit) break;
+								if ($ic < $start) {
 									$ic++;
 									continue;
 								}

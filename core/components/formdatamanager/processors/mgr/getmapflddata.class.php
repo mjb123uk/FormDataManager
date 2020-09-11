@@ -23,7 +23,6 @@ class FormDataManagerGetMapFldDataProcessor extends modProcessor
 		$limit = (isset($scriptProperties['limit'])) ? $scriptProperties['limit'] : 20;
 		if ($limit == 0) $limit = 999;
 		$start = (isset($scriptProperties['start'])) ? $scriptProperties['start'] : 0;
-		$limit = $start+$limit;
 
 		$tpl = (isset($scriptProperties['tpl'])) ? $scriptProperties['tpl'] : 0;
 		$newtpl = (isset($scriptProperties['newtpl'])) ? $scriptProperties['newtpl'] : false;
@@ -65,8 +64,10 @@ class FormDataManagerGetMapFldDataProcessor extends modProcessor
 					$ord = 0;
 					$ic = 0;
 					$count = count($flddata);
+					if ($limit != 999) $limit += $start;
 					foreach ($flddata as &$field) {
-						if ( ($ic < $start) || ($ic >= $limit) ) {
+						if ($ic >= $limit) break;
+						if ($ic < $start) {
 							$ic++;
 							continue;
 						}
@@ -91,8 +92,10 @@ class FormDataManagerGetMapFldDataProcessor extends modProcessor
 						$rows = json_decode($ro,TRUE);
 						$ic = 0;
 						$count = count($rows);
+						if ($limit != 999) $limit += $start;
 						foreach($rows as $r) {
-							if ( ($ic < $start) || ($ic >= $limit) ) {
+							if ($ic >= $limit) break;
+							if ($ic < $start) {
 								$ic++;
 								continue;
 							}

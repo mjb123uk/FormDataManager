@@ -19,6 +19,7 @@ class FormDataManagerHomeManagerController extends modExtraManagerController {
 		if ($this->hasformit) $this->addJavascript($this->config['assets_url'].'js/widgets/formdatamanager.formitgrid.js');
 		$this->addJavascript($this->config['assets_url'].'js/widgets/formdatamanager.tablesgrid.js');
 		$this->addJavascript($this->config['assets_url'].'js/widgets/formdatamanager.templatesgrid.js');        
+		$this->addJavascript($this->config['assets_url'].'js/widgets/formdatamanager.bulkexportgrid.js'); 
 		$this->addJavascript($this->config['assets_url'].'js/widgets/formdatamanager.homepanel.js');
         $this->addJavascript($this->config['assets_url'].'js/sections/home.js');
     }
@@ -57,11 +58,14 @@ class FormDataManagerHomeManagerController extends modExtraManagerController {
 				}
 			}
 		}
+		$showformitcontext = 'No';
+		if ($this->hasformit) $showformitcontext = $this->modx->getOption('fdm_show_formit_context',null,0);
 		
         $this->addHtml('<script type="text/javascript">
         ModFormDataManager.config.connector_url = "'.$this->config['connector_url'].'";
 		ModFormDataManager.config.hasformz = '.$this->hasformz.';
 		ModFormDataManager.config.hasformit = '.$this->hasformit.';
+		ModFormDataManager.config.showformitcontext = '.$showformitcontext.';
 		ModFormDataManager.config.gridheight = 400;
 		ModFormDataManager.config.hometab = "'.$hometab.'";	
 		ModFormDataManager.config.defaultTemplate = "'.$defTemplate.'";			

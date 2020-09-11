@@ -1,4 +1,11 @@
-FormDataManager-1.3.16.pl
+FormDataManager - 1.4.0.pl
+==========================
+New Bulk Export tab to list previous compressed files and download / remove these.
+Fixes to pagination on multi-page lists.
+New system setting for optional Formit context column in grid list.
+Local sort columns on Formz / Formit grids.
+
+1.3.16.pl
 =========================
 Fixed problem with FormIt & Formz list processors when filter set.
 Changed to list in form name sequence.

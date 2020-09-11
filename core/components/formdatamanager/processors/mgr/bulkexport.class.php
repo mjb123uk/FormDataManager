@@ -62,6 +62,10 @@ class FormDataManagerBulkExportProcessor extends modProcessor
 				$response = $this->modx->runProcessor('mgr/exportdata', $fields, array('processors_path' => $processorsPath));
 			}
 		}
+		$remove = 0;
+		$this->modx->formdatamanager->createZip($savetofolder,$remove);	
+		$data[] = $savetofolder;
+
 		return $this->outputArray($data,count($data));
 	}		
 }

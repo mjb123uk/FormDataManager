@@ -22,7 +22,6 @@ class FormDataManagerGetTemplatesListProcessor extends modProcessor
 		$limit = (isset($scriptProperties['limit'])) ? $scriptProperties['limit'] : 20;
 		if ($forcombo) $limit = 999;
 		$start = (isset($scriptProperties['start'])) ? $scriptProperties['start'] : 0;
-		$limit = $start+$limit;
 		$count = 0;	
 		$data = array();
 		$tudata = array();
@@ -56,8 +55,10 @@ class FormDataManagerGetTemplatesListProcessor extends modProcessor
 		$count = $this->modx->getCount($classname, $c);
 		$tplfmts = $this->modx->getCollection($classname, $c);
 		$ic = 0;
+		if ($limit != 999) $limit += $start;
 		foreach($tplfmts as $tfmt) {
-			if ( ($ic < $start) || ($ic >= $limit) ) {
+			if ($ic >= $limit) break;
+			if ($ic < $start) {
 				$ic++;
 				continue;
 			}
@@ -89,6 +90,7 @@ class FormDataManagerGetTemplatesListProcessor extends modProcessor
 				$www = json_encode($tpleditdata);
 				$data[] = array('id' => $fd['id'],'name' => $tpl,'selectionfield' => $fd['selectionfield'], 'hasdata' => $hasdata, 'usedcount' => $w, 'tpleditdata' => $www);
 			}
+			$ic++;
 		}
 		if ($forcombo) $count = count($data);	
 		return $this->outputArray($data,$count);
